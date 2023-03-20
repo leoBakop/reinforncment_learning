@@ -33,7 +33,7 @@ def epsilon_greedy(T, arms, best, k):
     for t in range(T):
         eps = (1/((t+dt)**(1/3)))*((k*np.log(t+dt))**(1/3))
         p = random.random()
-        if eps > p: #pull an random arm
+        if eps < p: #pull an random arm
             index = random.randint(0, len(arms)-1 )
             (arms_score, arms_counter, value) = pull_and_update(arms, index, arms_score, arms_counter)
         else : #pull the arm with the best mean
