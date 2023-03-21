@@ -13,6 +13,12 @@ def create_ranges(k):
         lower = np.random.random()
         upper = np.random.random()
         (lower,upper) = (upper, lower) if upper < lower else (lower, upper)
+        e = .1 
+        while ((upper+lower)/2 > e and  (upper+lower)/2 < 1-e ):
+            lower = np.random.random()
+            upper = np.random.random()
+            (lower,upper) = (upper, lower) if upper < lower else (lower, upper)
+        
         ranges.append(np.array([lower, upper]))
 
 
