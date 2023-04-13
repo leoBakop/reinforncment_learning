@@ -37,8 +37,9 @@ def epsilon_greedy(T, arms, best, k):
     best_score = np.zeros((T))
     alg_score = np.zeros((T))
     for t in range(T):
-        eps = (1/((t+dt)**(1/3)))*((k*np.log(t+dt))**(1/3))
+        eps = (1/((t+dt)**(1/3)))*((k*np.log(t+dt))**(1/3)) if t ==0 else (1/((t)**(1/3)))*((k*np.log(t))**(1/3)) #dt was used only for t==0
         p = random.random()
+        
         if eps < p: #pull an random arm
             index = random.randint(0, len(arms)-1 )
             (arms_score, arms_counter, value) = pull_and_update(arms, index, arms_score, arms_counter)
@@ -103,8 +104,9 @@ def print_list(l):
 def main():
 
     #creating the environment
-    k = 10
-    T = k*100
+    k = 100
+    T = 100*k
+
 
     #initialize/defining the range of rewards per arm
     #and calculate the best arm
