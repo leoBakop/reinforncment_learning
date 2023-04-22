@@ -160,7 +160,7 @@ def main():
         T=7000
         start = 0 
     
-    df = pd.read_csv('./pset_2/Milano_timeseries.csv', header = None)
+    df = pd.read_csv('./pset_2/Milano_timeseries.csv', header = None) #None in order to not use the first line as header
     display = True #in order to show the selected server every 10^3 rounds
     
     #calculating the best server, considering that best is the on with the lower sum of loads
