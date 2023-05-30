@@ -1,5 +1,6 @@
 import game
 from game import Game
+import numpy as np
 
 class Env:
 
@@ -19,6 +20,8 @@ class Env:
         self.agents_chips[self.chip_index] = 1
         #back account in the begining of every hand
         self.bank = []
+        #storing the opponents move in order to return it on state
+        self.last_opponent_move = -1
 
     def reset(self):
 
@@ -33,27 +36,30 @@ class Env:
         state = self.form_state()
         return state, self.mana, done
     
-    def step(self, action):
-        """ Action is a (2*1), [action_player_0, action_player_1]
+    def step(self, action, player):
+        """ Action is a int, and player is either 0(agent) or 1(opponent)
         """
         done = False
         p = self.mana
-        for i in range(len(action)):
-            done, a = self.game.step(action[p], p) #a is the action aw it was translated from the game 
-            if (p == 0 and a == 2):#in case that the agent raises
-                #then I should reduce the agents chips
-                self.agents_chips[self.chip_index] = 0
-                self.agents_chips[self.chip_index-2] = 1
-                self.chip_index-=2
+        
+        done, a = self.game.step(action, player) #a is the action aw it was translated from the game
+        #if opponent is playing, then store its move 
+        self.last_opponent_move = a if player == 1 else  self.last_opponent_move
             
-            if(i == 1 and action[p] == 2): #in case that the last player raise
-                next_player = self.agent if p == 1 else self.opponent
-                #to do
-                new_action = next_player.send_action(self.form_state()) # a method that every agent should implememnt, taking a state, returning an action
-                done, a = self.game.step(new_action, p)
-            p = (p+1)%2
-            if done:
-                break
+            
+        if (player == 0 and a == 2):#in case that the agent raises
+            #then I should reduce the agents chips
+            self.agents_chips[self.chip_index] = 0
+            self.agents_chips[self.chip_index-2] = 1
+            self.chip_index-=2
+        
+        if(player != p and action == 2): #in case that the last player raise (first player is always the mana)
+            next_player = self.agent if player == 1 else self.opponent
+            #to do
+            new_action = next_player.send_action(self.form_state()) # a method that every agent should implememnt, taking a state, returning an action
+            done, a = self.game.step(new_action, np.abs(player-1))
+        
+        
         self.table = self.game.table
         state = self.form_state()
         
@@ -74,10 +80,13 @@ class Env:
 
     def form_state(self):
         """
-            state: [0:4 is agents hand, 5:9 cards on the table, 10:28 available chips of agent (every index is .5 chips)]
+            state: [0:4 is agents hand, 5:9 cards on the table, 
+            10:28 available chips of agent (every index is .5 chips), 
+            29:31 is the laste move of the opponent]
         """
         self.table == [0]*5 if isinstance(self.table, int) else self.table
-        return [self.agents_hand, self.table, self.agents_chips]
+        last_op_move = list([0 if i != self.last_opponent_move else 1 for i in range(3)])
+        return [self.agents_hand, self.table, self.agents_chips,last_op_move]
         
 
 
@@ -90,7 +99,17 @@ if __name__ == "__main__":
     
     state = env.reset()
     done = False
+    mana = env.mana
     while not done:
-        state, reward, done=env.step([agent.send_action(state), opponent.send_action(state)])
+        #rememmber that state, reward an done are referring only in the agent
+        if mana == 0:
+            state, reward, done=env.step(agent.send_action(state), 0)
+            if done: break 
+            state, reward, done = env.step(opponent.send_action(state), 1)
+            
+        else:
+           state, reward, done=env.step(opponent.send_action(state), 1)
+           if done: break
+           state, reward, done=env.step(agent.send_action(state), 0) 
 
     print("end")
