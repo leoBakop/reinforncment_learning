@@ -3,7 +3,7 @@ from dealer import Dealer
 from judger import Judger
 from card import Card
 
-INITIAL_TOKENS = 10.5
+INITIAL_TOKENS = 8.5
 ACTIONS = {
     0:"check",
     1:"fold",
