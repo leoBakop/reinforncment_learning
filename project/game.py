@@ -3,7 +3,7 @@ from dealer import Dealer
 from judger import Judger
 from card import Card
 
-INITIAL_TOKENS = 8.5
+INITIAL_TOKENS = 4.5
 ACTIONS = {
     0:"check",
     1:"fold",
@@ -69,7 +69,7 @@ class Game:
         action = 1 if action == 2 and self.opponent_last_action == 2 else action
         if action ==  1: #player folds
                 #the opponent wins
-            return self.win(player,opponent)
+            return self.win(player,opponent), action
         if action == 2: #player raises 
             self.consecutive_raises +=1
             if self.opponent_last_action == 2: #if opponent was raise 
@@ -79,21 +79,21 @@ class Game:
                     self.total_money_per_player[player]-=2
                     
                 else: #else I lose
-                    return self.win(player,opponent)
+                    return self.win(player,opponent), action
         
             elif self.total_money_per_player[player] >= 1:# if opponent didn't raise and i have enough money
                 self.pot +=1
                 self.total_money_per_player[player]-=1
             else:# else you just lose
                 #so the opponent winds
-                return self.win(player,opponent)
+                return self.win(player,opponent), action
         if action == 0:
             if self.opponent_last_action ==2 : #if opponents raised in the last round
                 if self.total_money_per_player[player] >= 1:#(and has the money to do it)
                     self.pot +=1
                     self.total_money_per_player[player]-=1
                 else:#you dont have money to call
-                    return self.win(player,opponent)
+                    return self.win(player,opponent), action
                 
         if self.terminate_phase == self.current_round: #phase must terminate
             if self.current_phase == 2: #at the end of the flop
@@ -102,7 +102,7 @@ class Game:
 
                 for i, reward in enumerate(r):
                     self.total_money_per_player[i]+=reward
-                return True
+                return True, action
             else:
                 self.current_phase +=1
                 self.consecutive_raises = 0
@@ -111,8 +111,8 @@ class Game:
                 self.terminate_phase = 2
                 self.table = [self.dealer.deal_card(),self.dealer.deal_card()]
                 self.table = [Card("D", "T"), Card("d", "K")]
-                return False 
-        return False
+                return False , action
+        return False, action
 
 
     def win(self,player, opponent):
