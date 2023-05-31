@@ -46,8 +46,6 @@ class Game:
         #hand in the cards
         for i in range(self.num_players):
             self.hand_of_player[i] = self.dealer.deal_card()
-        self.hand_of_player[0] = Card("S", "T")
-        self.hand_of_player[1] = Card("S", "K")
         self.total_money_per_player = list([i-self.small_blind for i in self.total_money_per_player]) #every player bets initially 0.5 tokens
         self.pot = 2*self.small_blind
         
@@ -110,7 +108,7 @@ class Game:
                 self.current_round = 0
                 self.terminate_phase = 2
                 self.table = [self.dealer.deal_card(),self.dealer.deal_card()]
-                self.table = [Card("D", "T"), Card("d", "K")]
+                
                 return False , action
         return False, action
 

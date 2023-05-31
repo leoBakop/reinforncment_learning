@@ -86,7 +86,8 @@ class Env:
         """
         self.table == [0]*5 if isinstance(self.table, int) else self.table
         last_op_move = list([0 if i != self.last_opponent_move else 1 for i in range(3)])
-        return [self.agents_hand, self.table, self.agents_chips,last_op_move]
+        return [self.agents_hand, self.table]
+        #return [self.agents_hand, self.table, self.agents_chips,last_op_move] in case of Q-learning
         
 
 
@@ -103,13 +104,13 @@ if __name__ == "__main__":
     while not done:
         #rememmber that state, reward an done are referring only in the agent
         if mana == 0:
-            state, reward, done=env.step(agent.send_action(state), 0)
+            state, reward, done=env.step(0, 0)
             if done: break 
-            state, reward, done = env.step(opponent.send_action(state), 1)
+            state, reward, done = env.step(0, 1)
             
         else:
-           state, reward, done=env.step(opponent.send_action(state), 1)
+           state, reward, done=env.step(0, 1)
            if done: break
-           state, reward, done=env.step(agent.send_action(state), 0) 
+           state, reward, done=env.step(0, 0) 
 
     print("end")
