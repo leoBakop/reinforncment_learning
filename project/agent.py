@@ -5,4 +5,4 @@ class Agent:
         pass
 
     def send_action(self, state):
-        return np.random.randint(0,3)
+        return NotImplemented

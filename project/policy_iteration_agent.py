@@ -7,11 +7,12 @@ class PolicyIterationAgent(Agent):
         self.gamma = gamma
         self.pi = None
         self.V = None
+        self.policy_iteration()
         return 
     
 
     def send_action(self, state):
-        return super().send_action(state)
+        return  self.pi(state)
     
     def policy_evaluation(self, pi = None):
         self.pi = pi if pi is not None else self.pi

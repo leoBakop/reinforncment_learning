@@ -1,13 +1,14 @@
 import game
 from game import Game
 import numpy as np
+from agent import Agent
 
 class Env:
 
-    def __init__(self,agent, opponent):
+    def __init__(self,agent, opponent, number_of_cards=5):
         self.game = Game()
         self.agent = agent
-        self.agents_hand = []
+        self.agents_hand = [0]*number_of_cards
         self.agents_chips = []
         self.chip_index = 0
         self.opponent = opponent
@@ -27,7 +28,9 @@ class Env:
 
         
         self.mana = self.game.init_game()
-        self.agents_hand = self.game.hand_of_player[0] #by assumption, trainable agent is player 0 (doesn't mean that plays first every time)
+        agents_hand = self.game.hand_of_player[0] #by assumption, trainable agent is player 0 (doesn't mean that plays first every time)
+        self.agents_hand = ["T", "J", "Q", "K", "A"] #important line in order to create the correct state vector
+        self.agents_hand = list([1 if agents_hand.rank == i else 0 for i in self.agents_hand])
         self.opponents_hand = self.game.hand_of_player[1]
         self.bank = list([ i +.5 for i in self.game.total_money_per_player]) #blind/ante
 
@@ -36,7 +39,7 @@ class Env:
         state = self.form_state()
         return state, self.mana, done
     
-    def step(self, action, player):
+    def step(self, action, player: Agent):
         """ Action is a int, and player is either 0(agent) or 1(opponent)
         """
         done = False

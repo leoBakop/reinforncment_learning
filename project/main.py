@@ -1,5 +1,8 @@
 
+from agent import Agent
 from policy_iteration_agent import PolicyIterationAgent
+from random_agent import Random_Agent
+from env import Env
 import numpy as np
 #in case of Policy Iteratation 
 '''
@@ -333,11 +336,46 @@ P = {
 
 #creating a random policy 
 
+def convert_pre_flop_state_to_num(state):
+    card = np.where(state == 1)
+    state = (4-card)*4
+    return state
+
+def convert_flop_state_to_num(preflop_state,state):
+
+    pass
+def play_an_episode(env: Env, agent: Agent, opponent:Agent):
+    state, *_ = env.reset()
+    state = convert_pre_flop_state_to_num(state)
+    preflop_state = state
+    done = False
+    mana = env.mana
+    total_reward = 0
+    while not done:
+        #rememmber that state, reward an done are referring only in the agent
+        if mana == 0: #if our agent is the mana
+            state, reward, done=env.step(agent.send_action(state), 0)
+            total_reward += reward
+            if done: break
+            state, reward, done = env.step(opponent.send_action(state), 1)
+            total_reward += reward 
+            
+        else:
+           state, reward, done=env.step(opponent.send_action(state), 1)
+           total_reward += reward 
+           if done: break
+           state, reward, done=env.step(agent.send_action(state), 0)
+           total_reward += reward
 
 
 if __name__ == "__main__":
     
     
     agent = PolicyIterationAgent(P=P)
-    V = agent.policy_iteration()
-    print(V)
+    opponent = Random_Agent()
+    env = Env(agent, opponent, number_of_cards=5)
+    for i in range(15):
+        r = play_an_episode(env,agent,opponent)
+        print(f"in episode {i}, reward is {r}")
+
+    
