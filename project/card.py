@@ -11,7 +11,7 @@ class Card:
     suit = None
     rank = None
     valid_suit = ['S', 'H', 'D', 'C', 'BJ', 'RJ']
-    valid_rank = ['A', '2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K']
+    valid_rank = ['-1','A', '2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K']
 
     def __init__(self, suit, rank):
         ''' Initialize the suit and rank of a card

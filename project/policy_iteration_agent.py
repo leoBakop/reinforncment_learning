@@ -7,7 +7,7 @@ class PolicyIterationAgent(Agent):
         self.gamma = gamma
         self.pi = None
         self.V = None
-        self.policy_iteration()
+        self.V, self.pi = self.policy_iteration()
         return 
     
 

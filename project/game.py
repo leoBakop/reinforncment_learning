@@ -33,14 +33,15 @@ class Game:
         self.opponent_last_action = None #the opponents last action before this betting round
         self.current_phase = 0 #if we are in flop, or pre flop etc
         self.consecutive_raises = 0
-        self.terminate_phase = 2 #show how many betting we will have in just one phase (ex. the flop etc)
-        self.table = []
+        self.terminate_phase = 2 #shows how many bets we will have in just one phase (ex. the flop-phase etc)
+        self.table = [Card('S', '-1')]*2
 
     def init_game(self):
         """
             Method that is called in the beginning of every game/hand of the "tournament"
         """
-        if self.done or self.check_if_game_end: return False#if at least one player is bancrupt the the tournament is over
+        if self.done or self.check_if_game_end(): return -1#if at least one player is bancrupt the the tournament is over
+        self.current_round=0
         self.dealer = Dealer()
         mana = np.random.choice([0,1])
         #hand in the cards
@@ -61,7 +62,7 @@ class Game:
         opponent = np.abs(player - 1)
         #the only available option is "fold".You dont have the money to continue the game.
         action = 1 if self.total_money_per_player[player] <1 and self.opponent_last_action ==2 else action 
-        #if 
+        
         action = 0 if self.consecutive_raises == 2 and action == 2 else action 
                 
         action = 1 if action == 2 and self.opponent_last_action == 2 else action
@@ -70,12 +71,11 @@ class Game:
             return self.win(player,opponent), action
         if action == 2: #player raises 
             self.consecutive_raises +=1
-            if self.opponent_last_action == 2: #if opponent was raise 
+            if self.opponent_last_action == 2: #if opponent raised 
                 self.terminate_phase = 3 #the two players must talk exactly 3 times
                 if self.total_money_per_player[player] >= 2: #if I have the money I should bet 2 tokens
                     self.pot +=2
-                    self.total_money_per_player[player]-=2
-                    
+                    self.total_money_per_player[player]-=2        
                 else: #else I lose
                     return self.win(player,opponent), action
         
@@ -126,7 +126,7 @@ class Game:
     
 
     def check_if_game_end(self):
-        return  np.min(self.total_money_per_player) <.5
+        return  np.min(self.total_money_per_player) <.5 or np.max(self.total_money_per_player) > 2*INITIAL_TOKENS + .5
 
 if __name__ == "__main__":
     g= Game()
