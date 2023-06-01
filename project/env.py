@@ -28,6 +28,7 @@ class Env:
 
         
         self.mana = self.game.init_game()
+        if not self.mana : return [False] * 3
         agents_hand = self.game.hand_of_player[0] #by assumption, trainable agent is player 0 (doesn't mean that plays first every time)
         self.agents_hand = ["T", "J", "Q", "K", "A"] #important line in order to create the correct state vector
         self.agents_hand = list([1 if agents_hand.rank == i else 0 for i in self.agents_hand])

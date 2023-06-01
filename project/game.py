@@ -40,7 +40,7 @@ class Game:
         """
             Method that is called in the beginning of every game/hand of the "tournament"
         """
-        if self.done: return #if at least one player is bancrupt the the tournament is over
+        if self.done or self.check_if_game_end: return False#if at least one player is bancrupt the the tournament is over
         self.dealer = Dealer()
         mana = np.random.choice([0,1])
         #hand in the cards
@@ -124,6 +124,9 @@ class Game:
         self.opponent_last_action = None
         return True
     
+
+    def check_if_game_end(self):
+        return  np.min(self.total_money_per_player) <.5
 
 if __name__ == "__main__":
     g= Game()

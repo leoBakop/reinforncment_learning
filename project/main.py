@@ -342,30 +342,37 @@ def convert_pre_flop_state_to_num(state):
     return state
 
 def convert_flop_state_to_num(preflop_state,state):
-
     pass
-def play_an_episode(env: Env, agent: Agent, opponent:Agent):
-    state, *_ = env.reset()
-    state = convert_pre_flop_state_to_num(state)
-    preflop_state = state
-    done = False
-    mana = env.mana
+
+
+def play_a_game(env: Env, agent: Agent, opponent:Agent):
     total_reward = 0
-    while not done:
-        #rememmber that state, reward an done are referring only in the agent
-        if mana == 0: #if our agent is the mana
-            state, reward, done=env.step(agent.send_action(state), 0)
-            total_reward += reward
-            if done: break
-            state, reward, done = env.step(opponent.send_action(state), 1)
-            total_reward += reward 
-            
-        else:
-           state, reward, done=env.step(opponent.send_action(state), 1)
-           total_reward += reward 
-           if done: break
-           state, reward, done=env.step(agent.send_action(state), 0)
-           total_reward += reward
+    while True: #play as many hands until one player bankrupts
+        state, *_ = env.reset()
+        if not state: return total_reward#means that the game has ended
+        state = convert_pre_flop_state_to_num(state)
+        preflop_state = state
+        done = False
+        mana = env.mana
+        
+        while not done: #playing one hand
+            #rememmber that state, reward an done are referring only in the agent
+            if mana == 0: #if our agent is the mana
+                state, reward, done=env.step(agent.send_action(state), 0)
+                total_reward += reward
+                if done: break
+                state, reward, done = env.step(opponent.send_action(state), 1)
+                total_reward += reward 
+                
+            else:
+                state, reward, done=env.step(opponent.send_action(state), 1)
+                total_reward += reward 
+                if done: break
+                state, reward, done=env.step(agent.send_action(state), 0)
+                total_reward += reward
+
+def play_an_episode(env: Env, agent: Agent, opponent:Agent):
+    pass
 
 
 if __name__ == "__main__":
