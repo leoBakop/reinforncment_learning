@@ -340,6 +340,26 @@ P = {
     },
 }
 
+'''
+The order of the each tuple is [card in hand, card on the table, phase, opponent last action]
+
+0: A pre flop, raise	9: K pre flop, raise	18: Q pre flop, raise	27: J pre flop, raise	36: T pre flop, raise
+1: A pre flop, check	10: K pre flop, check	19: Q pre flop, check	28: J pre flop, check	37: T pre flop, check
+2: A pre flop, no info	11: K pre flop, no info	20: Q pre flop, no info	29: J pre flop, no info	38: T pre flop, no info
+3: A -A*,  flop, raise	12: K-K* flop, raise	21: Q -Q*,  flop, raise	30: J-J*,  flop, raise	39: T -T*,  flop, raise
+4: A -A*, flop, check	13: K-K* flop, check	22: Q-Q*, flop, check	31: J-J*, flop, check	40: T-T*, flop, check
+5: A -AA, flop, raise	14: K-KK flop, raise	23: Q -QQ, flop, raise	32: J -JJ, flop, raise	41: T-TT, flop, raise
+6: A - AA, flop, check	15: K-KK flop, check	24: Q- QQ, flop, check	33: J - JJ, flop, check	42: T- TT, flop, check
+7:A- ** , flop, raise	16: K-** flop, raise	25:Q- ** , flop, raise	34:J- ** , flop, raise	43:T- ** , flop, raise
+8: A- **, flop, check	17: K-** flop, check	26: Q- **, flop, check	35: J- **, flop, check	44: T- **, flop, check
+
+---------------  ---------------  ---------------  ---------------  -------------------
+-----------actions----------
+0: check
+1: fold
+2: raise
+'''
+
 P_THRESHOLD= {
     # A - pre flop
    0: {
