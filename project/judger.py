@@ -35,6 +35,6 @@ class Judger:
         if winner == -1:
             return [pot/2, pot/2]
         elif winner == 0:
-            return [pot, -pot]
+            return [pot, 0]
         else:
-            return [-pot, pot]
+            return [0, pot]

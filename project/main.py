@@ -141,14 +141,14 @@ P = {
     7: {
         #check
         0: [(0.5, 7, 0.0,False),
-            (0.5, 7, LOW_MED_REWARD,True),
+            (0.5, 7, MED_REWARD,True),
 
         ],
         #fold
         1: [(1, 7, WORST_REWARD,True)
         ],
         #raise
-        2: [(0.5, 7, LOW_BEST_REWARD,True),
+        2: [(0.5, 7, LOW_MED_REWARD,True),
             (0.5, 7, 0.0,False)
         ]
     },

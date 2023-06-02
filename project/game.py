@@ -60,19 +60,20 @@ class Game:
             it is called every time that a player talks,
             returns True if the hand is over , else False
         """
+        
         self.current_round+=1
         opponent = np.abs(player - 1)
         #the only available option is "fold".You dont have the money to continue the game.
         action = 1 if self.total_money_per_player[player] <1 and self.opponent_last_action == 2 else action 
         action = 0 if self.consecutive_raises == 2 and action == 2 else action 
-        action = 1 if action == 2 and self.opponent_last_action == 2 else action
-
+        
+        
         if action ==  1: #player folds
                 #the opponent wins
             return self.win(player,opponent), action
         if action == 2: #player raises 
             self.consecutive_raises +=1
-            if player == self.mana: self.terminate_phase = 3 #if player that talks second raise, then the opponent must answer in the same phase
+            if player != self.mana: self.terminate_phase = 3 #if player that talks second raise, then the opponent must answer in the same phase
             if self.opponent_last_action == 2: #if opponent raised 
                 
                 if self.total_money_per_player[player] >= 2: #if I have the money I should bet 2 tokens
@@ -111,8 +112,9 @@ class Game:
                 self.current_round = 0
                 self.terminate_phase = 2
                 self.table = [self.dealer.deal_card(),self.dealer.deal_card()]
-                
+                self.opponent_last_action = action
                 return False , action
+        self.opponent_last_action = action
         return False, action
 
 
@@ -138,13 +140,13 @@ if __name__ == "__main__":
     done = False
     i=mana
     
-    done , _= g.step(action = 2, player = 0)
-    done , _= g.step(action = 2, player = 0)
-    done , _= g.step(action = 2, player = 0)
+    done , _= g.step(action = 2, player = i)
+    done , _= g.step(action = 2, player = (i+1)%2)
+    done , _= g.step(action = 2, player = i)
 
-    done , _= g.step(action = 0, player = 0)
-    done , _= g.step(action = 2, player = 0)
-    done , _= g.step(action = 1, player = 0)
+    done , _= g.step(action = 0, player = i)
+    done , _= g.step(action = 2, player = (i+1)%2)
+    done , _= g.step(action = 0, player = i)
     
 
 
