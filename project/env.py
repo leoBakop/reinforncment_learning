@@ -37,7 +37,7 @@ class Env:
         self.agents_hand = list([1 if agents_hand.rank == i else 0 for i in self.agents_hand])
         self.opponents_hand = self.game.hand_of_player[1]
         self.bank = list([ i +.5 for i in self.game.total_money_per_player]) #blind/ante
-
+        self.last_opponent_move = None
         done = False
         self.table = [Card('S', '-1')]*2
         state = self.form_state()
@@ -64,7 +64,7 @@ class Env:
             next_player = self.agent if player == 1 else self.opponent
             #to do
             new_action = next_player.send_action(enumarated_state) # a method that every agent should implememnt, taking a state, returning an action
-            done, a = self.game.step(new_action, np.abs(player-1))
+            done, a= self.game.step(new_action, np.abs(player-1))
         
         
         self.table = self.game.table
@@ -76,6 +76,7 @@ class Env:
             
             bank_after_episode = self.game.total_money_per_player
             reward = bank_after_episode[0] - self.bank[0] #reward is how much money did the agent win (or lose)
+            deb = bank_after_episode[1] - self.bank[1]
             #changing the chips of the agent based on the result of the game
             #in case of a negative reward this will work too
             index_shift =  int(reward * 2)
@@ -102,7 +103,7 @@ class Env:
             tmp = list([1 if card.rank == i else 0 for i in table])
             table_state = np.bitwise_or(np.array(table_state), np.array(tmp))
         last_op_move = list([0 if i != self.last_opponent_move else 1 for i in range(3)])
-       
-        return self.agents_hand + table_state.tolist()
+        
+        return self.agents_hand + table_state.tolist() + last_op_move
         #return [self.agents_hand, self.table, self.agents_chips,last_op_move] in case of Q-learning
         
