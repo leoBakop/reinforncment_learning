@@ -2,6 +2,7 @@ import game
 from game import Game
 import numpy as np
 from agent import Agent
+from implemented_agents import Q_Learning_Agent
 from card import Card
 
 
@@ -43,7 +44,7 @@ class Env:
         state = self.form_state()
         return state, self.mana, done
     
-    def step(self, action, player: Agent,enumarated_state):
+    def step(self, action, player: Agent,enumarated_state, t, previous_tuple):
         """ Action is a int, and player is either 0(agent) or 1(opponent)
         """
         done = False
@@ -63,7 +64,10 @@ class Env:
         if(player != p and action == 2): #in case that the last player raise (first player is always the mana)
             next_player = self.agent if player == 1 else self.opponent
             #to do
-            new_action = next_player.send_action(enumarated_state) # a method that every agent should implememnt, taking a state, returning an action
+            if (isinstance(next_player, Q_Learning_Agent)): #if our agent is playing
+                new_action = next_player.send_action(enumarated_state, t, previous_tuple)
+            else: 
+                new_action = next_player.send_action(enumarated_state, None, None) # a method that every agent should implememnt, taking a state, returning an action
             done, a= self.game.step(new_action, np.abs(player-1))
         
         

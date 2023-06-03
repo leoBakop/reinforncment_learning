@@ -1,8 +1,7 @@
 
 from agent import Agent
-from policy_iteration_agent import PolicyIterationAgent
-from random_agent import Random_Agent
-from threshold_agent import Threshold_Agent
+from implemented_agents import PolicyIterationAgent, Random_Agent, Threshold_Agent, Q_Learning_Agent
+
 from env import Env
 import numpy as np
 import matplotlib.pyplot as plt
@@ -71,8 +70,8 @@ P = {
         1: [(1, 2, WORST_REWARD,True)
         ],
         #raise
-        2: [(0.0, 1, BEST_REWARD,True),
-            (1, 1, 0.0,False)
+        2: [(0.0, 2, BEST_REWARD,True),
+            (1, 2, 0.0,False)
         ]
     },
     #A - **
@@ -354,6 +353,19 @@ The order of the each tuple is [card in hand, card on the table, phase, opponent
 8: A- **, flop, check	17: K-** flop, check	26: Q- **, flop, check	35: J- **, flop, check	44: T- **, flop, check
 
 ---------------  ---------------  ---------------  ---------------  -------------------
+
+32:A- pre flop any opp action
+0: A-AA or A-A*                     9: Q pre flop raise                18:J-J*, flop, raise         27:T-T*, flop, check
+1:A- ** , flop, raise               10: Q pre flop check , no info     19:J-J*, flop, check         28:T-TT, flop, raise
+2: A- **, flop, check               11: Q-Q* ,flop, raise              20:J -JJ, flop, raise        29:T- TT, flop, check
+3:K pre flop raise                  12: Q-Q*, flop, check -na kn raise 21:J - JJ, flop, check       30:T- ** , flop, raise
+4: K pre flop, check or no info     13: Q-QQ , flop raise or check     22:J- ** , flop, raise	    31:T- **, flop, check
+5: K-K* flop, raise or check        14: Q- ** , flop, raise            23:J- **, flop, check	
+6: K-KK flop, raise or check        15: Q- **, flop, check             24:T pre flop, raise
+7:  K-** flop, raise                16: J pre flop, raise              25: T pre flop, check/no info
+8 : K-** flop, check                17: J pre flop, check - no info    26:T -T*,  flop, raise
+
+
 -----------actions----------
 0: check
 1: fold
@@ -361,320 +373,72 @@ The order of the each tuple is [card in hand, card on the table, phase, opponent
 '''
 
 P_THRESHOLD= {
-    # A - pre flop
-   0: {
+    # A-AA or A-A* whatever the opp does, raise
+   0: { 
         #action - check
-        0: [(0.35, 1, 0.0,False),
-            (0.3, 2, 0.0,False),
-            (0.35,3,0.0,False)
-        ],
-       #action -fold
-        1: [(1, 0, WORST_REWARD, True)
-        ],
-       #action -raise
-        2: [(0.25, 1, 0.0,False),
-            (0.25, 2, 0.0,False),
-            (0.25, 3, 0.0,False),
-            (.25,0,MED_REWARD,True)        
-            ]
-    },
-     #A- A*
-    1: {
-        #check
-        0: [(0.5, 1, 0.0,False),
-            (0.5, 1, WORST_REWARD,True),
+        0: [(0.5, 0, 0.0,False),
+            (0.5, 0, LOW_MED_REWARD,True),
 
         ],
         #fold
-        1: [(1, 1, WORST_REWARD,True)
+        1: [(1, 0, WORST_REWARD,True)
         ],
         #raise
-        2: [(0.5, 1, BEST_REWARD,True),
+        2: [(0.5, 0, BEST_REWARD,True),
+            (0.5, 0, 0.0,False)
+
+        ]
+    },
+   1: { #A- ** , flop, raise  if the opp raised, he has sth. Better fold.
+        #action - check
+        0: [(0.5, 1, 0.0,False),
+            (0.5, 1, LOW_MED_REWARD,True),
+
+        ],
+        #fold
+        1: [(1, 1, BEST_REWARD,True)
+        ],
+        #raise
+        2: [(0.5, 1, WORST_REWARD,True),
             (0.5, 1, 0.0,False)
 
         ]
     },
-     #A-AA
-    2: {
-        #check
+
+   2: { #A- **, flop, check : The opponent doesnt have sth good. Raise.
+        #action - check
         0: [(0.5, 2, 0.0,False),
-            (0.5, 2, WORST_REWARD,True),
+            (0.5, 2, LOW_MED_REWARD,True),
 
         ],
         #fold
         1: [(1, 2, WORST_REWARD,True)
         ],
         #raise
-        2: [(0.5, 1, BEST_REWARD,True),
-            (0.5, 1, 0.0,False)
-        ]
-    },
-    #A - **
-    3: {
-        #check
-        0: [(0.5, 3, 0.0,False),
-            (0.5, 3,LOW_BEST_REWARD,True),
-
-        ],
-        #fold
-        1: [(1, 3, LOW_MED_REWARD,True)
-        ],
-        #raise
-        2: [(0.5, 3, WORST_REWARD,True), #####################################
-            (0.5, 3, 0.0,False)
-        ]
-    },
-    # K - pre flop
-   4: {
-        #check
-        0: [(0.35, 5, 0.0,False),
-            (0.3, 6, 0.0,False),
-            (0.35,7,0.0,False)
-        ],
-       #fold
-        1: [(1, 4, WORST_REWARD, True)
-        ],
-       #raise
-        2: [(0.35, 5, 0.0,False),
-            (0.3, 6, 0.0,False),
-            (0.35, 7, 0.0,False)
-        ]
-    },
-     #K- K*
-    5: {
-        #check
-        0: [(0.5, 5, 0.0,False),
-            (0.5, 5, WORST_REWARD,True), ##########################33
-
-        ],
-        #fold
-        1: [(1, 5, WORST_REWARD,True)
-        ],
-        #raise
-        2: [(0.5, 5, BEST_REWARD,True),
-            (0.5, 5, 0.0,False)
+        2: [(0.5, 2, BEST_REWARD,True),
+            (0.5, 2, 0.0,False)
 
         ]
     },
-     #K-KK
-    6: {
-        #check
-        0: [(0.5, 6, 0.0,False),
-            (0.5, 6, WORST_REWARD,True),
-
-        ],
-        #fold
-        1: [(1, 6, WORST_REWARD,True)
-        ],
-        #raise
-        2: [(0.5, 6, BEST_REWARD,True),
-            (0.5, 6, 0.0,False)
-        ]
-    },
-    #K - **
-    7: {
-        #check
-        0: [(0.5, 7, 0.0,False),
-            (0.5, 7, MED_REWARD,True),
-
-        ],
-        #fold
-        1: [(1, 7, LOW_MED_REWARD,True)
-        ],
-        #raise
-        2: [(0.5, 7, LOW_MED_REWARD,True),
-            (0.5, 7, 0.0,False)
-        ]
-    },
-    # Q - pre flop
-    8: {
-        #check
-        0: [(0.35,9, 0.0,False),
-            (0.3, 10, 0.0,False),
-            (0.35,11,0.0,False)
-        ],
-       #fold
-        1: [(1, 8, WORST_REWARD, True) #################################3
-        ],
-       #raise
-        2: [(0.35, 9, 0.0,False),
-            (0.3, 10, 0.0,False),
-            (0.35,11, 0.0,False)
-        ]
-    },
-     #Q- Q*
-    9: {
-        #check
-        0: [(0.5, 9, 0.0,False),
-            (0.5, 9,LOW_MED_REWARD,True),
-
-        ],
-        #fold
-        1: [(1, 9, WORST_REWARD,True)
-        ],
-        #raise
-        2: [(0.5, 9, BEST_REWARD,True),
-            (0.5, 9, 0.0,False)
-
-        ]
-    },
-     #Q-QQ
-    10: {
-        #check
-        0: [(0.5, 10, 0.0,False),
-            (0.5, 10, WORST_REWARD,True),
-
-        ],
-        #fold
-        1: [(1, 10, WORST_REWARD,True)
-        ],
-        #raise
-        2: [(0.5, 10, BEST_REWARD,True),
-            (0.5, 10, 0.0,False)
-        ]
-    },
-    #Q - **
-    11: {
-        #check
-        0: [(0.5, 11, 0.0,False),
-            (0.5, 11, BEST_REWARD,True),
-
-        ],
-        #fold
-        1: [(1, 11, LOW_BEST_REWARD,True)
-        ],
-        #raise
-        2: [(0.5, 11, WORST_REWARD,True),
-            (0.5, 11, 0.0,False)
-        ]
-    },     
-    # J - pre flop
-   12: {
-        #check
-        0: [(0.35,13, 0.0,False),
-            (0.3, 14, 0.0,False),
-            (0.35,15,0.0,False)
-        ],
-       #fold
-        1: [(1, 12, MED_REWARD, True)
-        ],
-       #raise
-        2: [(0.35,13, 0.0,False),
-            (0.3, 14, 0.0,False),
-            (0.35,15, 0.0,False)
-        ]
-    },
-     #J- J*
-    13: {
-        #check
-        0: [(0.5, 13, 0.0,False),
-            (0.5, 13, LOW_MED_REWARD,True),
-
-        ],
-        #fold
-        1: [(1, 13, WORST_REWARD,True)
-        ],
-        #raise
-        2: [(0.5, 13, BEST_REWARD,True),
-            (0.5, 13, 0.0,False)
-
-        ]
-    },
-     #J-JJ
-    14: {
-        #check
-        0: [(0.5, 14, 0.0,False),
-            (0.5, 14, WORST_REWARD,True),
-
-        ],
-        #fold
-        1: [(1, 14, WORST_REWARD,True)
-        ],
-        #raise
-        2: [(0.5, 14, BEST_REWARD,True),
-            (0.5, 14, 0.0,False)
-        ]
-    },
-    #J - **
-    15: {
-        #check
-        0: [(0.5, 15, 0.0,False),
-            (0.5, 15, LOW_MED_REWARD,True),
-
-        ],
-        #fold
-        1: [(1, 15, BEST_REWARD,True)
-        ],
-        #raise
-        2: [(0.5, 15, WORST_REWARD,True),
-            (0.5, 15, 0.0,False)
-        ]
-    },
-    # 10 - pre flop
-   16: {
+    # K- pre flop, raise : low best is to raise 
+   3: {
         #action - check
-        0: [(0.35, 17, 0.0,False),
-            (0.3, 18, 0.0,False),
-            (0.35,19,0.0,False)
+        0: [(0.25, 5, 0.0,False),
+            (0.25, 6, 0.0,False),
+            (0.25, 7, 0.0,False),
+            (0.25,8,0.0,False)
         ],
        #action -fold
-        1: [(1, 16,LOW_BEST_REWARD, True)
+        1: [(1, 3, WORST_REWARD, True)
         ],
        #action -raise
-        2: [(0.35, 17, 0.0,False),
-            (0.3, 18, 0.0,False),
-            (0.35, 19, 0.0,False)
-        ]
-    },
-     #10-10*
-    17: {
-        #check
-        0: [(0.5, 17, 0.0,False),
-            (0.5, 17, MED_REWARD,True),
-
-        ],
-        #fold
-        1: [(1, 17, LOW_BEST_REWARD,True)
-        ],
-        #raise
-        2: [(0.5, 17, LOW_MED_REWARD,True),
-            (0.5, 17, 0.0,False)
-
-        ]
-    },
-     #10-1010
-    18: {
-        #check
-        0: [(0.5, 18, 0.0,False),
-            (0.5, 18, LOW_MED_REWARD,True),
-
-        ],
-        #fold
-        1: [(1, 18, WORST_REWARD,True)
-        ],
-        #raise
-        2: [(0.5, 18, BEST_REWARD,True),
-            (0.5, 18, 0.0,False)
-        ]
-    },
-    #10-**
-    19: {
-        #check
-        0: [(0.5, 19, 0.0,False),
-            (0.5, 19, WORST_REWARD,True),
-
-        ],
-        #fold
-        1: [(1, 19, BEST_REWARD,True)
-        ],
-        #raise
-        2: [(0.5, 19, WORST_REWARD,True),
-            (0.5, 19, 0.0,False)
+        2: [(0.25, 5, 0.0,False),
+            (0.25, 6, 0.0,False),
+            (0.25, 7, 0.0,False),
+            (0.25, 8, 0.0,False)
         ]
     },
 }
-#creating a random policy 
-
 
 def convert_pre_flop_state_to_num(state):
     card = np.where(np.array(state) == 1)
@@ -695,7 +459,7 @@ def convert_flop_state_to_num(preflop_state,state):
     
 
 
-def play_a_game(env: Env, agent: Agent, opponent:Agent, threshold):
+def play_a_game(env: Env, agent: Agent, opponent:Agent, threshold, t = None):
     games = 0
     total_reward = 0
     while True: #play as many hands until one player bankrupts
@@ -706,49 +470,62 @@ def play_a_game(env: Env, agent: Agent, opponent:Agent, threshold):
         preflop_state = state
         done = False
         mana = env.mana
-        
+        #for q_learning
+        prev_state = state
+        action = None
+        reward = 0
+        done = False
+
+
         while not done: #playing one hand
             #rememmber that state, reward an done are referring only in the agent
+
+            #storing info for q-learning
+            previous_tuple = [prev_state, action, reward, state, done]
             if mana == 0: #if our agent is the mana
-                state, reward, done=env.step(agent.send_action(state), 0, state)
+                prev_state = state
+                action = agent.send_action(state, t, previous_tuple) if isinstance(agent, Q_Learning_Agent) else agent.send_action(state, None, None)
+                state, reward, done=env.step(action, 0, state, t, previous_tuple)
                 if not threshold: state = state[0:10]
                 state = convert_flop_state_to_num(preflop_state, state)
                 total_reward += reward
                 if done: break
-                state, reward, done = env.step(opponent.send_action(state), 1, state)
+                state, reward, done = env.step(opponent.send_action(state, None, None), 1, state, t, previous_tuple)
                 if not threshold: state = state[0:10]
                 state = convert_flop_state_to_num(preflop_state, state)
                 total_reward += reward 
                 if done: break
 
             else:
-                state, reward, done=env.step(opponent.send_action(state), 1, state)
+                prev_state = state
+                state, reward, done=env.step(opponent.send_action(state, None, None), 1, state, t, previous_tuple)
                 if not threshold: state = state[0:10]
                 state = convert_flop_state_to_num(preflop_state, state)
                 total_reward += reward 
                 if done: break
-                state, reward, done=env.step(agent.send_action(state), 0,state)
+                action = agent.send_action(state, t, previous_tuple) if isinstance(agent, Q_Learning_Agent) else agent.send_action(state, None, None)
+                state, reward, done=env.step(action, 0,state, t, previous_tuple)
                 if not threshold: state = state[0:10]
                 state = convert_flop_state_to_num(preflop_state, state)
                 total_reward += reward
                 if done: break
 
-def play_an_episode(env: Env, agent: Agent, opponent:Agent):
-    pass
-
+      
 
 if __name__ == "__main__":
     
-    threshold = False
+    threshold = True
     p = P_THRESHOLD if threshold else P
-    agent = PolicyIterationAgent(P=p)
-    
+    #agent = PolicyIterationAgent(P=p)
+    agent = Q_Learning_Agent(state_size=20 if not threshold else 45, action_size= 3)
     opponent = Threshold_Agent() if threshold else Random_Agent()
     env = Env(agent, opponent, number_of_cards=5)
     horizon = 1000
     r = np.zeros(horizon)
-    for i in range(horizon):
-        r[i] = play_a_game(env,agent,opponent, threshold) + r[i-1] if i > 0 else play_a_game(env,agent,opponent, threshold)
+    dt = .000001
+    for t in range(horizon):
+        
+        r[t] = play_a_game(env,agent,opponent, threshold, t) + r[t-1] if t > 0 else play_a_game(env,agent,opponent, threshold, t+dt)
         env = Env(agent, opponent, number_of_cards=5)
     
     plt.figure(1)
