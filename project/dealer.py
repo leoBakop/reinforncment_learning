@@ -7,7 +7,8 @@ class Dealer():
         ''' Initialize a leducholdem dealer class
         '''
         self.np_random = np.random.RandomState()
-        self.deck = [ Card('S', 'T'), Card('H', 'T'),Card('D', 'T'),Card('C', 'J'),
+        self.deck = [ 
+                      Card('S', 'T'), Card('H', 'T'),Card('D', 'T'),Card('C', 'T'),
                       Card('S', 'J'), Card('H', 'J'),Card('D', 'J'),Card('C', 'J'),
                       Card('S', 'Q'), Card('H', 'Q'),Card('D', 'Q'),Card('C', 'Q'),
                       Card('S', 'K'), Card('H', 'K'),Card('D', 'K'),Card('C', 'K'),
