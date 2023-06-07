@@ -956,7 +956,127 @@ def convert_flop_state_to_num(preflop_state,state):
     if ((indices[0]+5 == indices[1] or indices[0]+ 5 == indices[2] )and(len(indices) == 3)): return preflop_state + 1
     return preflop_state +3
     
-    
+def threshold_convert_state_to_num(state):
+   # Map the card in hand to an index
+   hand_card = np.where(np.array(state[0:5]) == 1)[0]
+
+   # Map the card on the table to an index
+   table_card = np.where(np.array(state[5:10]) == 1)[0]
+
+   # Map the opponent's last action to an index
+   opponent_action =  state[10:]
+##################pre flop phase############################
+   if(len(table_card)==0): #we re at the pre-flop states
+     #24:T pre flop, raise
+     #25: T pre flop, check/no info
+        if (state[0] == 1):
+            if same_list(opponent_action, [0,0,0]) : return 25 #no info
+            if same_list(opponent_action, [1,0,0]) : return 25 #check
+            if same_list(opponent_action, [0,0,1]) : return 24 #raise
+
+        #16: J pre flop, raise
+        #17: J pre flop, check - no info
+        if(state[1] ==1):
+            if same_list(opponent_action, [0,0,0]) : return 17 #no info
+            if same_list(opponent_action, [1,0,0]) : return 17 #check
+            if same_list(opponent_action, [0,0,1]) : return 16 #raise  
+        #9: Q pre flop raise
+        #10: Q pre flop check , no info
+        if(state[2]==1):
+            if same_list(opponent_action, [0,0,0]) : return 10 #no info
+            if same_list(opponent_action, [1,0,0]) : return 10 #check
+            if same_list(opponent_action, [0,0,1]) : return 9 #raise
+       #3:K pre flop raise                 
+       #4: K pre flop, check or no info 
+        if(state[3]==1):
+            if same_list(opponent_action, [0,0,0]) : return 4 #no info
+            if same_list(opponent_action, [1,0,0]) : return 4 #check
+            if same_list(opponent_action, [0,0,1]) : return 3 #raise 
+        #32:A- pre flop any opp action
+        if(state[4]==1): return 32
+        
+###########################flop phase###############################
+   if(len(table_card)==2): #we have 2 different (between them) cards on the table
+        #30:T- ** , flop, raise
+        #31:T- **, flop, check
+        if (state[0] == 1 and state[5] == 0):
+            if same_list(opponent_action,[1,0,0]) : return 31 #check
+            if same_list(opponent_action,[0,0,1]) : return 30 #raise
+        #26:T -T*,  flop, raise
+        #27:T-T*, flop, check
+        if(state[0] == 1 and state[5] == 1):
+            if same_list(opponent_action,[1,0,0]) : return 27 #check
+            if same_list(opponent_action,[0,0,1]) : return 26 #raise
+        #22:J- ** , flop, raise	
+        #23:J- **, flop, check
+        if(state[1] ==1 and state[6]==0):
+            if same_list(opponent_action,[1,0,0]) : return 23 #check
+            if same_list(opponent_action,[0,0,1]) : return 22 #raise
+        #18:J-J*, flop, raise 
+        #19:J-J*, flop, check 
+        if (state[1] ==1 and state[6]==1): 
+            if same_list(opponent_action,[1,0,0]) : return 19 #check
+            if same_list(opponent_action,[0,0,1]) : return 18 #raise            
+        #14: Q- ** , flop, raise
+        #15: Q- **, flop, check
+        if(state[2]==1 and state[7]==0):
+            if same_list(opponent_action,[1,0,0]) : return 15 #check
+            if same_list(opponent_action,[0,0,1]) : return 14 #raise
+        #11: Q-Q* ,flop, raise 
+        #12: Q-Q*, flop, check
+        if(state[2]==1 and state[7]==1):
+            if same_list(opponent_action,[1,0,0]) : return 12 #check
+            if same_list(opponent_action,[0,0,1]) : return 11 #raise
+        #7:  K-** flop, raise 
+        #8 : K-** flop, check
+        if(state[3]==1 and state[8]==0):
+            if same_list(opponent_action,[1,0,0]) : return 8 #check
+            if same_list(opponent_action,[0,0,1]) : return 7 #raise
+        #5: K-K* flop, raise or check   
+        if(state[3]==1 and state[8]==1):
+            return 5
+        #1:A- ** , flop, raise   
+        #2: A- **, flop, check
+        if(state[4]==1 and state[9]==0): 
+            if same_list(opponent_action,[1,0,0]) : return 2 #check
+            if same_list(opponent_action,[0,0,1]) : return 1 #raise 
+        #0: A-AA or A-A*
+        if(state[4]==1 and state[9]==1):
+            return 0
+#######################pair on the table already ##########################
+   if(len(table_card)==1): #we have a pair already on the table
+      #28:T-TT, flop, raise
+      #29:T- TT, flop, check 
+        if(state[0] == 1 and state[5] == 1):
+            if same_list(opponent_action,[1,0,0]) : return 29 #check
+            if same_list(opponent_action,[0,0,1]) : return 28 #raise 
+        #20:J -JJ, flop, raise
+        #21:J - JJ, flop, check 
+        if (state[1] ==1 and state[6]==1): 
+            if same_list(opponent_action,[1,0,0]) : return 21 #check
+            if same_list(opponent_action,[0,0,1]) : return 20 #raise   
+        #13: Q-QQ , flop raise or check
+        if(state[2]==1 and state[7]==1):
+            return 13
+        #6: K-KK flop, raise or check 
+        if(state[3]==1 and state[8]==1):
+            return 6      
+        #0: A-AA or A-A*      
+        if(state[4]==1 and state[9]==1):
+            return 0      
+        
+   return state
+
+
+def same_list(first, second):
+    if len(first)!=len(second):
+        return False
+    same = True
+    for i, j in zip(first, second):
+        same = i==j
+        if  not same:
+            return False
+    return True
 
 
 def play_a_game(env: Env, agent: Agent, opponent:Agent, threshold, t = None):
@@ -990,7 +1110,7 @@ def play_a_game(env: Env, agent: Agent, opponent:Agent, threshold, t = None):
                     state = state[0:10]
                     state = convert_flop_state_to_num(preflop_state, state)
                 else :
-                    state = your_function(with_whatever_argument_you_want)
+                    state = threshold_convert_state_to_num(state)
                 total_reward += reward
                 if done: break
                 state, reward, done = env.step(opponent.send_action(state, None, None), 1, state, t, previous_tuple)
@@ -998,7 +1118,7 @@ def play_a_game(env: Env, agent: Agent, opponent:Agent, threshold, t = None):
                     state = state[0:10]
                     state = convert_flop_state_to_num(preflop_state, state)
                 else :
-                    state = your_function(with_whatever_argument_you_want)
+                    state = threshold_convert_state_to_num(state)
                 total_reward += reward 
                 if done: break
 
@@ -1009,7 +1129,7 @@ def play_a_game(env: Env, agent: Agent, opponent:Agent, threshold, t = None):
                     state = state[0:10]
                     state = convert_flop_state_to_num(preflop_state, state)
                 else :
-                    state = your_function(with_whatever_argument_you_want)
+                    state = threshold_convert_state_to_num(state)
                 total_reward += reward 
                 if done: break
                 action = agent.send_action(state, t, previous_tuple) if isinstance(agent, Q_Learning_Agent) else agent.send_action(state, None, None)
@@ -1018,14 +1138,15 @@ def play_a_game(env: Env, agent: Agent, opponent:Agent, threshold, t = None):
                     state = state[0:10]
                     state = convert_flop_state_to_num(preflop_state, state)
                 else :
-                    state = your_function(with_whatever_argument_you_want)
+                    state = threshold_convert_state_to_num(state)
                 total_reward += reward
                 if done: break
 
       
 
 if __name__ == "__main__":
-    
+
+
     threshold = True
     p = P_THRESHOLD if threshold else P
     agent = PolicyIterationAgent(P=p)
