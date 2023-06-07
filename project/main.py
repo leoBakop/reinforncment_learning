@@ -1085,8 +1085,8 @@ def play_a_game(env: Env, agent: Agent, opponent:Agent, threshold, t = None):
     while True: #play as many hands until one player bankrupts
         state, *_ = env.reset()
         games += 1
-        if state == -1: return total_reward#means that the game has ended
-        state = convert_pre_flop_state_to_num(state[0:5])
+        if state == -1: return total_reward#means that the game has ended 
+        state = threshold_convert_state_to_num(state) if threshold else convert_pre_flop_state_to_num(state[0:5])
         preflop_state = state
         done = False
         mana = env.mana
