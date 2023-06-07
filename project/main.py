@@ -1002,11 +1002,13 @@ def threshold_convert_state_to_num(state):
         if (state[0] == 1 and state[5] == 0):
             if same_list(opponent_action,[1,0,0]) : return 31 #check
             if same_list(opponent_action,[0,0,1]) : return 30 #raise
+            
         #26:T -T*,  flop, raise
         #27:T-T*, flop, check
         if(state[0] == 1 and state[5] == 1):
             if same_list(opponent_action,[1,0,0]) : return 27 #check
             if same_list(opponent_action,[0,0,1]) : return 26 #raise
+
         #22:J- ** , flop, raise	
         #23:J- **, flop, check
         if(state[1] ==1 and state[6]==0):
@@ -1050,20 +1052,37 @@ def threshold_convert_state_to_num(state):
         if(state[0] == 1 and state[5] == 1):
             if same_list(opponent_action,[1,0,0]) : return 29 #check
             if same_list(opponent_action,[0,0,1]) : return 28 #raise 
+        if (state[0] == 1 and state[5] ==0): #there is a pair in the table but we cannot make a 3 of a kind
+            #act same as T-**
+            if same_list(opponent_action,[1,0,0]) : return 31 
+            if same_list(opponent_action,[0,0,1]) : return 30 
         #20:J -JJ, flop, raise
         #21:J - JJ, flop, check 
         if (state[1] ==1 and state[6]==1): 
             if same_list(opponent_action,[1,0,0]) : return 21 #check
-            if same_list(opponent_action,[0,0,1]) : return 20 #raise   
+            if same_list(opponent_action,[0,0,1]) : return 20 #raise
+        if (state[1] == 1 and state[6] ==0): #there is a pair in the table but we cannot make a 3 of a kind
+            #act same as J-**
+            if same_list(opponent_action,[1,0,0]) : return 23 
+            if same_list(opponent_action,[0,0,1]) : return 22   
         #13: Q-QQ , flop raise or check
-        if(state[2]==1 and state[7]==1):
-            return 13
+        if(state[2]==1 and state[7]==1):return 13
+        if(state[2]==1 and state[7] ==0):
+            #act same as Q-**
+            if same_list(opponent_action,[1,0,0]) : return 12
+            if same_list(opponent_action,[0,0,1]) : return 11   
         #6: K-KK flop, raise or check 
-        if(state[3]==1 and state[8]==1):
-            return 6      
+        if(state[3]==1 and state[8]==1):return 6
+        if (state[3] == 1 and state[8] ==0): #there is a pair in the table but we cannot make a 3 of a kind
+            #act same as K-**
+            if same_list(opponent_action,[1,0,0]) : return 8 
+            if same_list(opponent_action,[0,0,1]) : return 7         
         #0: A-AA or A-A*      
-        if(state[4]==1 and state[9]==1):
-            return 0      
+        if(state[4]==1 and state[9]==1):return 0
+        if (state[4] == 1 and state[9] ==0): #there is a pair in the table but we cannot make a 3 of a kind
+            #act same as A-**
+            if same_list(opponent_action,[1,0,0]) : return 2
+            if same_list(opponent_action,[0,0,1]) : return 1      
         
    return state
 
@@ -1085,8 +1104,8 @@ def play_a_game(env: Env, agent: Agent, opponent:Agent, threshold, t = None):
     while True: #play as many hands until one player bankrupts
         state, *_ = env.reset()
         games += 1
-        if state == -1: return total_reward#means that the game has ended 
-        state = threshold_convert_state_to_num(state) if threshold else convert_pre_flop_state_to_num(state[0:5])
+        if state == -1: return total_reward#means that the game has ended
+        state = convert_pre_flop_state_to_num(state[0:5])
         preflop_state = state
         done = False
         mana = env.mana
@@ -1149,8 +1168,8 @@ if __name__ == "__main__":
 
     threshold = True
     p = P_THRESHOLD if threshold else P
-    agent = PolicyIterationAgent(P=p)
-    #agent = Q_Learning_Agent(state_size=20 if not threshold else 45, action_size= 3)
+    #agent = PolicyIterationAgent(P=p)
+    agent = Q_Learning_Agent(state_size=20 if not threshold else 33, action_size= 3)
     opponent = Threshold_Agent() if threshold else Random_Agent()
     env = Env(agent, opponent, number_of_cards=5)
     horizon = 1000
