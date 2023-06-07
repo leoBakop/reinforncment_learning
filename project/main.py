@@ -1105,7 +1105,7 @@ def play_a_game(env: Env, agent: Agent, opponent:Agent, threshold, t = None):
         state, *_ = env.reset()
         games += 1
         if state == -1: return total_reward#means that the game has ended
-        state = convert_pre_flop_state_to_num(state[0:5])
+        state = convert_pre_flop_state_to_num(state[0:5]) if not threshold else threshold_convert_state_to_num(state)
         preflop_state = state
         done = False
         mana = env.mana
@@ -1168,8 +1168,8 @@ if __name__ == "__main__":
 
     threshold = True
     p = P_THRESHOLD if threshold else P
-    #agent = PolicyIterationAgent(P=p)
-    agent = Q_Learning_Agent(state_size=20 if not threshold else 33, action_size= 3)
+    agent = PolicyIterationAgent(P=p)
+    #agent = Q_Learning_Agent(state_size=20 if not threshold else 33, action_size= 3)
     opponent = Threshold_Agent() if threshold else Random_Agent()
     env = Env(agent, opponent, number_of_cards=5)
     horizon = 1000
