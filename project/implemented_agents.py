@@ -72,31 +72,33 @@ class Q_Learning_Agent(Agent):
         self.action_size = action_size
         self.gamma = gamma
         self.a = a
-        self.Q = np.zeros((self.state_size, self.action_size))
+        self.Q = np.random.rand(self.state_size, self.action_size)
 
-    def train(self, state, t, previos_tuple):
-        
-        k = self.action_size
-        
-        eps =(1/((t)**(1/3)))*((k*np.log(t))**(1/3)) #dt was used only for t==0
-        p = np.random.rand()
-        
-        if p < eps: #make a random move
-            action = np.random.choice([0,1,2])
-        else : #act as q suggests
-            action = np.argmax(self.Q[state,:])
+    def train(self, tuple):
         
         #and now the training section, based on the previous tuple (knowledge)
-        state, prev_action, reward, next_state,  done = previos_tuple
+        state, prev_action, reward, next_state,  done = tuple
         if not prev_action is None: #it is None when the aent talks first
             target = reward +self.gamma*np.argmax(self.Q[next_state,:])*(not done)
             self.Q[state, prev_action]= (1-self.a)*self.Q[state, prev_action] + target
 
-        return action
     
 
-    def send_action(self, state, t, previos_tuple):
-        return self.train(state, t, previos_tuple)
+    def send_action(self, state, t):
+        k = self.action_size
+        
+        eps =(1/((t)**(1/3)))*((k*np.log(t))**(1/3)) #dt was used only for t==0
+        p = np.random.rand()
+        #select action
+        if p < eps: #make a random move
+            action = np.random.choice([0,1,2])
+        else : #act as q suggests
+            action = np.argmax(self.Q[state,:])
+
+        if ((not (action in [0,1,2])) and ( action is not None)):
+            print("bug needs to be fixed")
+            return np.random.choice([0,1,2])
+        return action
         
 
 class Random_Agent(Agent):

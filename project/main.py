@@ -85,7 +85,7 @@ P = {
         1: [(1, 3, LOW_MED_REWARD,True)
         ],
         #raise
-        2: [(0.5, 3, MED_REWARD,True), #only for A-** since A is the highest card
+        2: [(0.5, 3, LOW_MED_REWARD,True), #only for A-** since A is the highest card
             (0.5, 3, 0.0,False)
         ]
     },
@@ -125,7 +125,7 @@ P = {
     6: {
         #check
         0: [(0.5, 6, 0.0,False),
-            (0.5, 6, LOW_MED_REWARD,True),
+            (0.5, 6, WORST_REWARD,True),
 
         ],
         #fold
@@ -159,7 +159,7 @@ P = {
             (0.35,11,0.0,False)
         ],
        #fold
-        1: [(1, 8, MED_REWARD, True)
+        1: [(1, 8, WORST_REWARD, True)
         ],
        #raise
         2: [(0.35, 9, 0.0,False),
@@ -187,7 +187,7 @@ P = {
     10: {
         #check
         0: [(0.5, 10, 0.0,False),
-            (0.5, 10, LOW_MED_REWARD,True),
+            (0.5, 10, WORST_REWARD,True),
 
         ],
         #fold
@@ -206,7 +206,7 @@ P = {
 
         ],
         #fold
-        1: [(1, 11, BEST_REWARD,True)
+        1: [(1, 11, LOW_MED_REWARD,True)
         ],
         #raise
         2: [(0.5, 11, WORST_REWARD,True),
@@ -249,7 +249,7 @@ P = {
     14: {
         #check
         0: [(0.5, 14, 0.0,False),
-            (0.5, 14, LOW_MED_REWARD,True),
+            (0.5, 14, WORST_REWARD,True),
 
         ],
         #fold
@@ -311,7 +311,7 @@ P = {
     18: {
         #check
         0: [(0.5, 18, 0.0,False),
-            (0.5, 18, LOW_BEST_REWARD,True),
+            (0.5, 18, WORST_REWARD,True),
 
         ],
         #fold
@@ -1098,7 +1098,7 @@ def same_list(first, second):
     return True
 
 
-def play_a_game(env: Env, agent: Agent, opponent:Agent, threshold, t = None):
+def play_a_game(env: Env, agent: Agent, opponent:Agent, threshold=False, t = None):
     games = 0
     total_reward = 0
     while True: #play as many hands until one player bankrupts
@@ -1118,18 +1118,18 @@ def play_a_game(env: Env, agent: Agent, opponent:Agent, threshold, t = None):
 
         while not done: #playing one hand
             #rememmber that state, reward an done are referring only in the agent
-
-            #storing info for q-learning
             previous_tuple = [prev_state, action, reward, state, done]
             if mana == 0: #if our agent is the mana
                 prev_state = state
-                action = agent.send_action(state, t, previous_tuple) if isinstance(agent, Q_Learning_Agent) else agent.send_action(state, None, None)
+                action = agent.send_action(state, t) if isinstance(agent, Q_Learning_Agent) else agent.send_action(state, None, None)
                 state, reward, done=env.step(action, 0, state, t, previous_tuple)
                 if not threshold: 
                     state = state[0:10]
                     state = convert_flop_state_to_num(preflop_state, state)
                 else :
                     state = threshold_convert_state_to_num(state)
+                if isinstance(agent, Q_Learning_Agent):
+                    agent.train([prev_state, action, reward, state, done])
                 total_reward += reward
                 if done: break
                 state, reward, done = env.step(opponent.send_action(state, None, None), 1, state, t, previous_tuple)
@@ -1151,16 +1151,20 @@ def play_a_game(env: Env, agent: Agent, opponent:Agent, threshold, t = None):
                     state = threshold_convert_state_to_num(state)
                 total_reward += reward 
                 if done: break
-                action = agent.send_action(state, t, previous_tuple) if isinstance(agent, Q_Learning_Agent) else agent.send_action(state, None, None)
+                action = agent.send_action(state, t) if isinstance(agent, Q_Learning_Agent) else agent.send_action(state, None, None)
                 state, reward, done=env.step(action, 0,state, t, previous_tuple)
+                
                 if not threshold: 
                     state = state[0:10]
                     state = convert_flop_state_to_num(preflop_state, state)
                 else :
                     state = threshold_convert_state_to_num(state)
+
+                if isinstance(agent, Q_Learning_Agent):
+                    agent.train([prev_state, action, reward, state, done])
                 total_reward += reward
                 if done: break
-
+    return total_reward
       
 
 if __name__ == "__main__":
@@ -1168,16 +1172,19 @@ if __name__ == "__main__":
 
     threshold = True
     p = P_THRESHOLD if threshold else P
-    agent = PolicyIterationAgent(P=p)
-    #agent = Q_Learning_Agent(state_size=20 if not threshold else 33, action_size= 3)
+    #agent = PolicyIterationAgent(P=p)
+    agent = Q_Learning_Agent(state_size=20 if not threshold else 33, action_size= 3)
     opponent = Threshold_Agent() if threshold else Random_Agent()
+    
+    
+    
     env = Env(agent, opponent, number_of_cards=5)
     horizon = 1000
     r = np.zeros(horizon)
     dt = .000001
     for t in range(horizon):
         
-        r[t] = play_a_game(env,agent,opponent, threshold, t) + r[t-1] if t > 0 else play_a_game(env,agent,opponent, threshold, t+dt)
+        r[t] = play_a_game(env,agent,opponent, threshold=threshold, t=t) + r[t-1] if t > 0 else play_a_game(env,agent,opponent, threshold=threshold, t=t+dt)
         env = Env(agent, opponent, number_of_cards=5)
     
     plt.figure(1)

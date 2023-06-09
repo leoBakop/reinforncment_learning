@@ -58,14 +58,17 @@ class Env:
         if (player == 0 and a == 2):#in case that the agent raises
             #then I should reduce the agents chips
             self.agents_chips[self.chip_index] = 0
-            self.agents_chips[self.chip_index-2] = 1
-            self.chip_index-=2
-        
+            if self.chip_index-2 >= 0:
+                self.agents_chips[self.chip_index-2] = 1
+                self.chip_index-=2
+            else:
+                return self.form_state(), -10, True  #-10 is a magic number, for a bad reward
         if(player != p and action == 2): #in case that the last player raise (first player is always the mana)
             next_player = self.agent if player == 1 else self.opponent
             #to do
             if (isinstance(next_player, Q_Learning_Agent)): #if our agent is playing
-                new_action = next_player.send_action(enumarated_state, t, previous_tuple)
+                new_action = next_player.send_action(enumarated_state, t)
+                next_player.train(previous_tuple)
             else: 
                 new_action = next_player.send_action(enumarated_state, None, None) # a method that every agent should implememnt, taking a state, returning an action
             done, a= self.game.step(new_action, np.abs(player-1))
@@ -80,7 +83,7 @@ class Env:
             
             bank_after_episode = self.game.total_money_per_player
             reward = bank_after_episode[0] - self.bank[0] #reward is how much money did the agent win (or lose)
-            deb = bank_after_episode[1] - self.bank[1]
+            
             #changing the chips of the agent based on the result of the game
             #in case of a negative reward this will work too
             index_shift =  int(reward * 2)
