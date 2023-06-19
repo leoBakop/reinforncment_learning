@@ -51,7 +51,8 @@ class Game:
         self.total_money_per_player = list([i-self.small_blind for i in self.total_money_per_player]) #every player bets initially 0.5 tokens
         self.pot = 2*self.small_blind
         self.mana = mana
-
+        self.table = [Card('S', '-1')]*2
+        self.consecutive_raises = 0
         return mana
 
     def step(self,action,player):
@@ -100,7 +101,7 @@ class Game:
             if self.current_phase == 1: #at the end of the flop
                 
                 judger = Judger(2)
-                r = judger.split_pot(self.pot,self.table, self.hand_of_player) 
+                r = judger.split_pot(self.pot,self.hand_of_player, self.table) 
 
                 for i, reward in enumerate(r):
                     self.total_money_per_player[i]+=reward
@@ -111,10 +112,11 @@ class Game:
                 self.opponent_last_action = 0
                 self.current_round = 0
                 self.terminate_phase = 2
-                self.table = [self.dealer.deal_card(),self.dealer.deal_card()]
+                #self.table = [self.dealer.deal_card(),self.dealer.deal_card()]
                 self.opponent_last_action = action
                 return False , action
         self.opponent_last_action = action
+        
         return False, action
 
 
@@ -137,16 +139,22 @@ if __name__ == "__main__":
     g= Game()
     mana = g.init_game()
     player_hand = g.hand_of_player
+    table = g.table
     done = False
     i=mana
     
     done , _= g.step(action = 2, player = i)
+    print(list([card.rank for card in g.table]))
     done , _= g.step(action = 2, player = (i+1)%2)
+    print(list([card.rank for card in g.table]))
     done , _= g.step(action = 2, player = i)
-
+    print(list([card.rank for card in g.table]))
     done , _= g.step(action = 0, player = i)
+    print(list([card.rank for card in g.table]))
     done , _= g.step(action = 2, player = (i+1)%2)
+    print(list([card.rank for card in g.table]))
     done , _= g.step(action = 0, player = i)
+    print(list([card.rank for card in g.table]))
     
 
 

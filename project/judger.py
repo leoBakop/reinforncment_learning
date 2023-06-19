@@ -38,3 +38,12 @@ class Judger:
             return [pot, 0]
         else:
             return [0, pot]
+
+
+
+if __name__ == "__main__":
+    from card import Card
+    j = Judger(2)
+    hands= [Card( 'S', 'Q'), Card('S', 'A')]
+    table = [Card('S', 'T'), Card('S', 'T')]
+    print(j.split_pot(12, hands,table))

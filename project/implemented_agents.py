@@ -1,6 +1,6 @@
 from agent import Agent
 import numpy as np
-
+import utils
 
 
 class PolicyIterationAgent(Agent):
@@ -67,27 +67,29 @@ class PolicyIterationAgent(Agent):
 
 class Q_Learning_Agent(Agent):
 
-    def __init__(self, state_size, action_size, a = .01, gamma = 1.0):
+    def __init__(self, state_size, action_size,policy, a = .2, gamma = 1.0):
         self.state_size = state_size
         self.action_size = action_size
         self.gamma = gamma
         self.a = a
         self.Q = np.random.rand(self.state_size, self.action_size)
+        self.conv = 0
+        self.comparison = policy
 
     def train(self, tuple):
-        
+        old_q = np.array([np.argmax(i) for i in self.Q])
         #and now the training section, based on the previous tuple (knowledge)
         state, prev_action, reward, next_state,  done = tuple
         if not prev_action is None: #it is None when the aent talks first
-            target = reward +self.gamma*np.argmax(self.Q[next_state,:])*(not done)
-            self.Q[state, prev_action]= (1-self.a)*self.Q[state, prev_action] + target
-
-    
+            target = reward +self.gamma*np.argmax(self.Q[next_state])*(not done)
+            self.Q[state, prev_action]= (1-self.a)*self.Q[state, prev_action] + self.a*target
+        policy = np.array([np.argmax(i) for i in self.Q])
+        
 
     def send_action(self, state, t):
         k = self.action_size
         
-        eps =(1/((t)**(1/3)))*((k*np.log(t))**(1/3)) #dt was used only for t==0
+        eps =(1/((t)**(1/3)))*((k*np.log(t))**(1/3)) if t > 10 else 1 
         p = np.random.rand()
         #select action
         if p < eps: #make a random move
@@ -121,9 +123,24 @@ class Threshold_Agent(Agent):
     1: fold
     2: raise
     '''
+    def set_hand(self, hand):
+        self.hand = hand
+    def set_table(self, table):
+        self.table = table
+    def set_round(self, round):
+        self.round = round   
     def send_action(self, state, useless_1, useless_2):
-        if state ==  0 or state == 1 or state == 2 or state == 4 or state == 5 or state == 6 or state == 9 or state == 10\
-            or state == 13 or state == 14 or state == 17 or state == 18 :
-            return 2 
-        if state == 3 or state == 7 or state == 8 or state == 12 or state == 16: return 0
-        return 1 
+        
+        cards_and_actions_round_0 = {
+            "T": 1,
+            "J": 0,
+            "Q":0,
+            "K":0,
+            "A": 2
+        }
+
+        if self.round == 0:
+            return cards_and_actions_round_0.get(self.hand.rank, 0) #by default check
+        for card in self.table:
+            if card.rank == self.hand.rank: return 2
+        return 0
