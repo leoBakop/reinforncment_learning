@@ -67,14 +67,15 @@ class PolicyIterationAgent(Agent):
 
 class Q_Learning_Agent(Agent):
 
-    def __init__(self, state_size, action_size,policy, a = .2, gamma = 1.0):
+    def __init__(self, state_size, action_size, a = .2, gamma = 1.0, seed = 0):
+        np.random.seed(seed=seed)
         self.state_size = state_size
         self.action_size = action_size
         self.gamma = gamma
         self.a = a
         self.Q = np.random.rand(self.state_size, self.action_size)
         self.conv = 0
-        self.comparison = policy
+        
 
     def train(self, tuple):
         old_q = np.array([np.argmax(i) for i in self.Q])
@@ -83,7 +84,7 @@ class Q_Learning_Agent(Agent):
         if not prev_action is None: #it is None when the aent talks first
             target = reward +self.gamma*np.argmax(self.Q[next_state])*(not done)
             self.Q[state, prev_action]= (1-self.a)*self.Q[state, prev_action] + self.a*target
-        policy = np.array([np.argmax(i) for i in self.Q])
+        
         
 
     def send_action(self, state, t):
@@ -102,7 +103,11 @@ class Q_Learning_Agent(Agent):
             return np.random.choice([0,1,2])
         return action
         
-
+    def to_str(self):
+        return "Q_Learning_Agent"
+    def reduce_a(self):
+        self.a = min(0.99998*self.a, 0.12)
+    
 class Random_Agent(Agent):
 
     def send_action(self, state, useless_1, useless_2):

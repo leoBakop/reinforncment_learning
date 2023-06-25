@@ -9,9 +9,17 @@ from tqdm import tqdm
 #import tkinter as tk 
 
 
+
+
+
 def play_a_game(env: Env, agent: Agent, opponent:Agent, threshold=False, t = None):
     games = 0
     total_reward = 0
+
+    if(t>20_000 ):
+        agent.reduce_a()
+
+
     while True: #play as many hands until one player bankrupts
         state, *_ = env.reset()
         if(isinstance(opponent, Threshold_Agent)): opponent.set_hand(env.game.hand_of_player[1])
@@ -41,45 +49,28 @@ def play_a_game(env: Env, agent: Agent, opponent:Agent, threshold=False, t = Non
                 prev_state = state
                 action = agent.send_action(state, t) if isinstance(agent, Q_Learning_Agent) else agent.send_action(state, None, None)
                 
-                state, reward, done=env.step(action, 0, t, previous_tuple)
+                state, reward, done=env.step(action, 0, t, previous_tuple, threshold=threshold, agent=agent)
                 
-                if not threshold: 
-                    state = state[0:10]
-                    state = utils.convert_flop_state_to_num(preflop_state, state)
-                else :
-                    state = utils.threshold_convert_state_to_num(state)
+                state = utils.return_state(state, threshold, agent,preflop_state)
                 if isinstance(agent, Q_Learning_Agent):
                     agent.train([prev_state, action, reward, state, done])
                 total_reward += reward
                 if done: break
-                state, reward, done = env.step(opponent.send_action(state, None, None), 1, t, previous_tuple)
-                if not threshold: 
-                    state = state[0:10]
-                    state = utils.convert_flop_state_to_num(preflop_state, state)
-                else :
-                    state = utils.threshold_convert_state_to_num(state)
+                state, reward, done = env.step(opponent.send_action(state, None, None), 1, t, previous_tuple, threshold=threshold, agent=agent)
+                state = utils.return_state(state, threshold, agent,preflop_state)
                 total_reward += reward 
                 if done: break
                 
             else:
+                
+                state, reward, done=env.step(opponent.send_action(state, None, None), 1, t, previous_tuple, threshold=threshold, agent=agent)
+                state = utils.return_state(state, threshold, agent,preflop_state)
                 prev_state = state
-                state, reward, done=env.step(opponent.send_action(state, None, None), 1, t, previous_tuple)
-                if not threshold: 
-                    state = state[0:10]
-                    state = utils.convert_flop_state_to_num(preflop_state, state)
-                else :
-                    state = utils.threshold_convert_state_to_num(state)
                 total_reward += reward 
                 if done: break
                 action = agent.send_action(state, t) if isinstance(agent, Q_Learning_Agent) else agent.send_action(state, None, None)
-                state, reward, done=env.step(action, 0, t, previous_tuple)
-                
-                if not threshold: 
-                    state = state[0:10]
-                    state = utils.convert_flop_state_to_num(preflop_state, state)
-                else :
-                    state = utils.threshold_convert_state_to_num(state)
-
+                state, reward, done=env.step(action, 0, t, previous_tuple, threshold=threshold, agent=agent)
+                state = utils.return_state(state, threshold, agent,preflop_state)
                 if isinstance(agent, Q_Learning_Agent):
                     agent.train([prev_state, action, reward, state, done])
                 total_reward += reward
@@ -89,45 +80,46 @@ def play_a_game(env: Env, agent: Agent, opponent:Agent, threshold=False, t = Non
                 env.game.table = [env.game.dealer.deal_card(),env.game.dealer.deal_card()]
                 #i have to update in this step the state
                 state = env.form_state()
-                if not threshold: 
-                    state = state[0:10]
-                    state = utils.convert_flop_state_to_num(preflop_state, state)
-                else :
-                    state = utils.threshold_convert_state_to_num(state)
+                state = utils.return_state(state, threshold, agent,preflop_state)
 
 
 if __name__ == "__main__":
 
 
-    threshold = True
+    threshold = False
+    q_learning = False
     p = utils.P_THRESHOLD if threshold else utils.P
-    agent_1 = PolicyIterationAgent(P=p)
-    policy_policy_iteration = list([agent_1.pi(i) for i in range(33 if threshold else 20)])
-    agent = Q_Learning_Agent(state_size=20 if not threshold else 33, 
+    
+    agent = Q_Learning_Agent(#state_size=2**10 if not threshold else 2**10, 
+                             state_size=20 if not threshold else 33, 
                              action_size= 3,
-                             a=.12,
-                             gamma=1.0,
-                             policy= np.array(policy_policy_iteration))
+                             a=.4 if threshold else .28,#.12
+                             gamma=.9) if q_learning else \
+                             PolicyIterationAgent(P=p)
     opponent = Threshold_Agent() if threshold else Random_Agent()
-    #agent = agent_1
+    
     
     
     env = Env(agent, opponent, number_of_cards=5)
-    horizon = 150_000
+    horizon = 80_000 if threshold else  12_000
+    horizon = 100 if not q_learning else horizon
     r = np.zeros(horizon)
+    reward = np.zeros(horizon)
     dt = .000001
     for t in tqdm(range(horizon), desc="Processing items", unit="item"):
         
-        r[t] = play_a_game(env,agent,opponent, threshold=threshold, t=t+dt)+r[t-1]*(t>0)
+        reward[t] = play_a_game(env,agent,opponent, threshold=threshold, t=t+dt if t == 0 else t)
+        r[t] = reward[t]+r[t-1]*(t>0)
         env = Env(agent, opponent, number_of_cards=5)
     
-    print(f"mean of the total reward is {np.mean(r)}")
-    policy_q_learning = list([f"state {i}, action {np.argmax(j)}" for i,j in enumerate(agent.Q)])
-    print(policy_q_learning)
-    """ 
-    sub = list([ int(i)-int(j) for i,j in zip(policy_q_learning,policy_policy_iteration)])
-    print(sub.count(0)) """
-    
+    print(f"mean of the total reward is {np.mean(reward)}")
+    if not q_learning:
+        decisions = list([agent.pi(i) for i in range(33 if threshold else 20)])
+        np.savetxt(f"./data/q_learning_{ q_learning}_threshold_{threshold}.csv", decisions)
+    else:
+        decisions = list([np.argmax(agent.Q[i,:]) for i in range(33 if threshold else 20)])
+        np.savetxt(f"./data/q_learning_{ q_learning}_threshold_{threshold}.csv", decisions)
+
     plt.figure(1)
     plt.title(f"Reward of the agent") 
     plt.xlabel("Round T") 

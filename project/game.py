@@ -65,10 +65,14 @@ class Game:
         self.current_round+=1
         opponent = np.abs(player - 1)
         #the only available option is "fold".You dont have the money to continue the game.
-        action = 1 if self.total_money_per_player[player] <1 and self.opponent_last_action == 2 else action 
+        a = -1 if self.total_money_per_player[player] <1 and self.opponent_last_action == 2 else action #it was action = 1 ...
         action = 0 if self.consecutive_raises == 2 and action == 2 else action 
         
-        
+        #original action has no meaning cause player has nothing to do
+        if(a == -1):
+            #we retrn action and not a in order for player to train in the original action
+            return self.win(player,opponent), action
+
         if action ==  1: #player folds
                 #the opponent wins
             return self.win(player,opponent), action
@@ -81,6 +85,7 @@ class Game:
                     self.pot +=2
                     self.total_money_per_player[player]-=2        
                 else: #else I lose
+                    
                     return self.win(player,opponent), action
         
             elif self.total_money_per_player[player] >= 1:# if opponent didn't raise and i have enough money

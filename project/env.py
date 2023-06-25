@@ -58,16 +58,15 @@ class Env:
         self.agents_chips[self.chip_index] = 1
         return
 
-
-
-
-
-
-    def step(self, action, player: Agent, t, previous_tuple):
+    def step(self, action, player, t, previous_tuple, threshold, agent:Agent):
         """ Action is a int, and player is either 0(agent) or 1(opponent)
         """
+        s = self.get_enumerate_states(self.form_state(), threshold, agent)
+        if(s == 14 and t > 100_000):
+            print("`break")
+
         self.calulate_chips()
-        if (not 1 in self.agents_chips): #if agent has no chis available
+        if (not 1 in self.agents_chips): #if agent has no chips available
             return self.form_state(), 0, True  #0 is a magic number, for a bad reward
         done = False
         p = self.mana
@@ -75,14 +74,21 @@ class Env:
         done, a = self.game.step(action, player) #a is the action aw it was translated from the game
         #if opponent is playing, then store its move 
         self.last_opponent_move = a if player == 1 else  self.last_opponent_move
-            
+        """  if(player  == 0 and a == 1):#if our agent fold
+            state = self.form_state()
+
+            s = utils.return_state( state_vector=state, 
+                                    threshold=threshold,
+                                    agent=agent,
+                                    preflop_state = utils.convert_pre_flop_state_to_num(state[0:5])
+                                    )
+            return state, 0.1*utils.FOLD_REWARDS.get(s,0), True """
             
         if (player == 0 and a == 2):#in case that the agent raises
             #then I should reduce the agents chips
             self.agents_chips[self.chip_index] = 0
             if self.chip_index-2 >= 0:
                 self.calulate_chips()
-                
             else:
                 return self.form_state(), 0, True  #0 is a magic number, for a bad reward
         if(player != p and action == 2): #in case that the last player raise (first player is always the mana)
@@ -97,7 +103,7 @@ class Env:
 
                 new_action = next_player.send_action(enumarated_state, None, None) # a method that every agent should implememnt, taking a state, returning an action
             #done, a= self.game.step(new_action, np.abs(player-1))
-            return self.step(new_action, np.abs(player - 1), t, previous_tuple)
+            return self.step(new_action, np.abs(player - 1), t, previous_tuple, threshold=threshold, agent=agent)
         
         self.table = self.game.table
         state = self.form_state()
@@ -133,8 +139,17 @@ class Env:
         
         return self.agents_hand + table_state.tolist() + last_op_move
         #return [self.agents_hand, self.table, self.agents_chips,last_op_move] in case of Q-learning
-        
 
+    """method only for debugging reasons"""
+    def get_enumerate_states(self, state, threshold, agent):
+        state = self.form_state()
+
+        s = utils.return_state( state_vector=state, 
+                                threshold=threshold,
+                                agent=agent,
+                                preflop_state = utils.convert_pre_flop_state_to_num(state[0:5])
+                                ) 
+        return s
 
 if __name__ == "__main__":
 
@@ -144,7 +159,6 @@ if __name__ == "__main__":
     for i in range(2):
         reward = 0
         env.reset()
-        
         state, reward, done = env.step(2,0,0, [])
         state = utils.threshold_convert_state_to_num(state)
         state, reward, done = env.step(0,1,1, [])

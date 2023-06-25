@@ -6,3 +6,8 @@ class Agent:
 
     def send_action(self, state):
         return NotImplemented
+    
+    def to_str(self):
+        return "Agent"
+    def reduce_a(self):
+        pass

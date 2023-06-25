@@ -13,7 +13,7 @@ import numpy as np
 1: fold
 2: raise
 '''
-BEST_REWARD = 100
+BEST_REWARD = 4.5
 WORST_REWARD = -BEST_REWARD
 MED_REWARD = BEST_REWARD/2
 LOW_MED_REWARD = BEST_REWARD/4
@@ -936,6 +936,42 @@ P_THRESHOLD= {
 
 
 
+FOLD_REWARDS = {
+    0:WORST_REWARD,
+    1:BEST_REWARD,
+    2:WORST_REWARD,
+    3:WORST_REWARD,
+    4:WORST_REWARD,
+    5:WORST_REWARD,
+    6:WORST_REWARD,
+    7:BEST_REWARD,
+    8:MED_REWARD,
+    9:WORST_REWARD,
+    10:WORST_REWARD,
+    11:WORST_REWARD,
+    12:WORST_REWARD,
+    13:WORST_REWARD,
+    14:BEST_REWARD,
+    15:MED_REWARD,
+    16:WORST_REWARD,
+    17:WORST_REWARD,
+    18:MED_REWARD,
+    19:WORST_REWARD,
+    20:WORST_REWARD,
+    21:WORST_REWARD,
+    22:BEST_REWARD,
+    23:MED_REWARD,
+    24:MED_REWARD,
+    25:WORST_REWARD,
+    26:MED_REWARD,
+    27:WORST_REWARD,
+    28:WORST_REWARD,
+    29:WORST_REWARD,
+    30:BEST_REWARD,
+    31:BEST_REWARD,
+    32:WORST_REWARD
+}
+
 
 
 
@@ -1098,6 +1134,24 @@ def same_list(first, second):
         if  not same:
             return False
     return True
+
+def return_state(state_vector, threshold, agent, preflop_state, full_stages=False):
+    state = 0
+    
+    if (agent.to_str() == "Q_Learning_Agent" and full_stages):
+        state_vector = state_vector[0:10] #if not threshold else state_vector
+        state_vector = state_vector[::-1]
+        return int("".join(map(str, state_vector)), 2)
+
+    if not threshold: 
+        state_vector = state_vector[0:10]
+        return convert_flop_state_to_num(preflop_state, state_vector)
+    else :
+        return threshold_convert_state_to_num(state_vector)
+
+    return state
+
+
 
 
 def differ(first, second):
