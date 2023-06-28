@@ -13,8 +13,10 @@ ACTIONS = {
 class Game:
 
 
-    def __init__(self, num_players=2, num_of_cards_in_hand=1, num_of_cards_on_table=2, num_of_rounds=2, done = False):
+    def __init__(self,seed = 0, num_players=2, num_of_cards_in_hand=1, num_of_cards_on_table=2, num_of_rounds=2, done = False):
         #logistics
+        self.seed = seed
+        np.random.seed(self.seed)
         self.small_blind = 0.5
         self.num_players = num_players
         self.big_blind = self.small_blind
@@ -40,10 +42,12 @@ class Game:
         """
             Method that is called in the beginning of every game/hand of the "tournament"
         """
+        
         self.current_phase = 0 
         if self.done or self.check_if_game_end(): return -1#if at least one player is bancrupt the the tournament is over
         self.current_round=0
-        self.dealer = Dealer()
+        s= np.random.randint(10_000)
+        self.dealer = Dealer(seed=s)
         mana = np.random.choice([0,1])
         #hand in the cards
         for i in range(self.num_players):
@@ -65,13 +69,11 @@ class Game:
         self.current_round+=1
         opponent = np.abs(player - 1)
         #the only available option is "fold".You dont have the money to continue the game.
-        a = -1 if self.total_money_per_player[player] <1 and self.opponent_last_action == 2 else action #it was action = 1 ...
+        action = 1 if self.total_money_per_player[player] <1 and self.opponent_last_action == 2 else action #it was action = 1 ...
         action = 0 if self.consecutive_raises == 2 and action == 2 else action 
         
         #original action has no meaning cause player has nothing to do
-        if(a == -1):
-            #we retrn action and not a in order for player to train in the original action
-            return self.win(player,opponent), action
+       
 
         if action ==  1: #player folds
                 #the opponent wins

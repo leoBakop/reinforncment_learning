@@ -3,10 +3,11 @@ import numpy as np
 
 class Dealer():
 
-    def __init__(self):
+    def __init__(self, seed = 1):
         ''' Initialize a leducholdem dealer class
         '''
-        self.np_random = np.random.RandomState()
+        np.random.seed(seed)
+        #self.np_random = np.random.RandomState()
         self.deck = [ 
                       Card('S', 'T'), Card('H', 'T'),Card('D', 'T'),Card('C', 'T'),
                       Card('S', 'J'), Card('H', 'J'),Card('D', 'J'),Card('C', 'J'),
@@ -18,7 +19,7 @@ class Dealer():
         self.pot = 0
 
     def shuffle(self):
-        self.np_random.shuffle(self.deck)
+        np.random.shuffle(self.deck)
 
     def deal_card(self):
         """
@@ -28,3 +29,11 @@ class Dealer():
             (Card): The drawn card from the deck
         """
         return self.deck.pop()
+
+
+if __name__ == '__main__':
+    d = Dealer()
+    card_1=d.deal_card()
+    card_2 =d.deal_card()
+    print(card_1)
+    print(card_2)

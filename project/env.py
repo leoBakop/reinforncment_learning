@@ -7,8 +7,8 @@ from card import Card
 import utils
 class Env:
 
-    def __init__(self,agent, opponent, number_of_cards=5):
-        self.game = Game()
+    def __init__(self,agent, opponent, seed = 0, number_of_cards=5):
+        self.game = Game(seed = seed)
         self.agent = agent
         self.agents_hand = [0]*number_of_cards
         self.agents_chips = []
@@ -62,8 +62,7 @@ class Env:
         """ Action is a int, and player is either 0(agent) or 1(opponent)
         """
         s = self.get_enumerate_states(self.form_state(), threshold, agent)
-        if(s == 14 and t > 100_000):
-            print("`break")
+        
 
         self.calulate_chips()
         if (not 1 in self.agents_chips): #if agent has no chips available

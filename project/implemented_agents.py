@@ -67,7 +67,7 @@ class PolicyIterationAgent(Agent):
 
 class Q_Learning_Agent(Agent):
 
-    def __init__(self, state_size, action_size, a = .2, gamma = 1.0, seed = 0):
+    def __init__(self, state_size, action_size, a = .2, gamma = 1.0, seed = 0, threshold = False, ante = False):
         np.random.seed(seed=seed)
         self.state_size = state_size
         self.action_size = action_size
@@ -75,10 +75,12 @@ class Q_Learning_Agent(Agent):
         self.a = a
         self.Q = np.random.rand(self.state_size, self.action_size)
         self.conv = 0
-        
+        self.eps = 1
+        self.disp = True
+        self.threshold = threshold
+        self.ante=ante
 
     def train(self, tuple):
-        old_q = np.array([np.argmax(i) for i in self.Q])
         #and now the training section, based on the previous tuple (knowledge)
         state, prev_action, reward, next_state,  done = tuple
         if not prev_action is None: #it is None when the aent talks first
@@ -89,11 +91,20 @@ class Q_Learning_Agent(Agent):
 
     def send_action(self, state, t):
         k = self.action_size
+        if not self.threshold:
+            self.eps =(1/((t)**(1/3)))*((k*np.log(t))**(1/3)) if t > 2 else 1 
+        else:
+            self.eps = max(0.9999749*self.eps, .01)
+        if not self.ante:
+            self.eps =  max(0.9999997*self.eps, .01) #exploration without ante
         
-        eps =(1/((t)**(1/3)))*((k*np.log(t))**(1/3)) if t > 10 else 1 
+        
+        if self.eps < .0101 and self.disp:
+            print("eps = .01------------")
+            self.disp = False
         p = np.random.rand()
         #select action
-        if p < eps: #make a random move
+        if p < self.eps: #make a random move
             action = np.random.choice([0,1,2])
         else : #act as q suggests
             action = np.argmax(self.Q[state,:])
@@ -109,7 +120,8 @@ class Q_Learning_Agent(Agent):
         self.a = min(0.99998*self.a, 0.12)
     
 class Random_Agent(Agent):
-
+    def __init__(self, seed = 0):
+        np.random.seed(seed = seed)
     def send_action(self, state, useless_1, useless_2):
         return np.random.randint(0,3)
     

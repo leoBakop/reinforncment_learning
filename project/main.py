@@ -86,33 +86,37 @@ def play_a_game(env: Env, agent: Agent, opponent:Agent, threshold=False, t = Non
 if __name__ == "__main__":
 
 
-    threshold = False
+    threshold = True
     q_learning = False
     p = utils.P_THRESHOLD if threshold else utils.P
-    
+    seed = 15
+    np.random.seed(seed)
     agent = Q_Learning_Agent(#state_size=2**10 if not threshold else 2**10, 
                              state_size=20 if not threshold else 33, 
                              action_size= 3,
                              a=.4 if threshold else .28,#.12
-                             gamma=.9) if q_learning else \
+                             gamma=.9,
+                             threshold=threshold,
+                             ante= True) if q_learning else \
                              PolicyIterationAgent(P=p)
-    opponent = Threshold_Agent() if threshold else Random_Agent()
+    opponent = Threshold_Agent() if threshold else Random_Agent(seed = seed)
+    
+    horizon = 80_000 if threshold else  25_000
+    horizon = 10_000 if not q_learning else horizon
+    
+    env = Env(agent, opponent, number_of_cards=5, seed=np.random.randint(low=1, high = horizon))
     
     
-    
-    env = Env(agent, opponent, number_of_cards=5)
-    horizon = 80_000 if threshold else  12_000
-    horizon = 100 if not q_learning else horizon
     r = np.zeros(horizon)
     reward = np.zeros(horizon)
     dt = .000001
     for t in tqdm(range(horizon), desc="Processing items", unit="item"):
-        
         reward[t] = play_a_game(env,agent,opponent, threshold=threshold, t=t+dt if t == 0 else t)
         r[t] = reward[t]+r[t-1]*(t>0)
-        env = Env(agent, opponent, number_of_cards=5)
+        s = np.random.randint(low=1, high = horizon)
+        env = Env(agent, opponent, number_of_cards=5, seed=s)
     
-    print(f"mean of the total reward is {np.mean(reward)}")
+    print(f"mean of the total reward (for the last 1000 iterations) is {np.mean(reward[-1:-1000:-1])}")
     if not q_learning:
         decisions = list([agent.pi(i) for i in range(33 if threshold else 20)])
         np.savetxt(f"./data/q_learning_{ q_learning}_threshold_{threshold}.csv", decisions)
@@ -127,4 +131,6 @@ if __name__ == "__main__":
     plt.plot(np.arange(1,horizon+1),r, label="cumulative reward")   
     plt.grid()
     plt.legend()
+    plt.savefig(f'images/q_learning_{ q_learning}_threshold_{threshold}.jpg')
+
     plt.show()
