@@ -67,18 +67,22 @@ class PolicyIterationAgent(Agent):
 
 class Q_Learning_Agent(Agent):
 
-    def __init__(self, state_size, action_size, a = .2, gamma = 1.0, seed = 0, threshold = False, ante = False):
+    def __init__(self, state_size, action_size, a = .2, gamma = 1.0, seed = 0, threshold = False, ante = False, Q=None, eps=1, against_human = False):
         np.random.seed(seed=seed)
         self.state_size = state_size
         self.action_size = action_size
         self.gamma = gamma
         self.a = a
-        self.Q = np.random.rand(self.state_size, self.action_size)
+
+        if Q is not None:self.Q = Q
+        else: self.Q = np.random.rand(self.state_size, self.action_size)
+
         self.conv = 0
-        self.eps = 1
+        self.eps = eps
         self.disp = True
         self.threshold = threshold
         self.ante=ante
+        self.against_human  = against_human
 
     def train(self, tuple):
         #and now the training section, based on the previous tuple (knowledge)
@@ -91,10 +95,12 @@ class Q_Learning_Agent(Agent):
 
     def send_action(self, state, t):
         k = self.action_size
-        if not self.threshold:
+        if (not self.threshold) and (not self.against_human): #plays ganst random
             self.eps =(1/((t)**(1/3)))*((k*np.log(t))**(1/3)) if t > 2 else 1 
-        else:
+        elif self.threshold: #plays against threshold
             self.eps = max(0.9999749*self.eps, .01)
+        else: #against human
+            self.eps = .01
         if not self.ante:
             self.eps =  max(0.9999997*self.eps, .01) #exploration without ante
         
@@ -128,18 +134,7 @@ class Random_Agent(Agent):
 
 
 class Threshold_Agent(Agent):
-    '''
-    0 : A pre flop     4 : K pre flop   8 : Q pre flop   12 : J pre flop  16 : 10 pre flop   
-    1 : A -A*          5 : K -K*        9 : Q - Q*       13 : J - J*      17 : 10 -10*
-    2 : A - AA         6 : K-KK         10 : Q-QQ        14 : J - JJ      18 : 10 -10 10
-    3 : A - **         7 : K - **       11 : Q - **      15 : J - **      19 : 10 - **
-
-    ---------------  ---------------  ---------------  ---------------  -------------------
-    -----------actions----------
-    0: check
-    1: fold
-    2: raise
-    '''
+  
     def set_hand(self, hand):
         self.hand = hand
     def set_table(self, table):
@@ -161,3 +156,43 @@ class Threshold_Agent(Agent):
         for card in self.table:
             if card.rank == self.hand.rank: return 2
         return 0
+    
+
+class Human_Agent(Agent):
+
+
+    def __init__(self, action_size, threshold = False, ante = False):
+        self.action_size = action_size
+        self.disp = True
+        self.threshold = threshold
+        self.ante=ante
+
+    def set_hand(self, hand):
+        self.hand = hand
+        
+
+    def set_table(self, table):
+        self.table = table
+
+    def set_round(self, round):
+        self.round = round   
+
+    def interface_display(self):
+        print(f"My current hand is : {self.hand}")
+        if not( self.table[0].rank == '-1'): 
+            print(f"The table has :{self.table[0].rank} , {self.table[1].rank}")
+        print(f"We are playing round number {self.round} of the game")
+       
+    def send_action(self, state, useless_1, useless_2):
+        # Implement the logic to receive the action from the human player
+        # Return the selected action
+        self.interface_display()
+        valid_actions = [0, 1, 2]
+        while True:
+            action = input("Enter your action : Press 0 to 'check' or 'call', 1 to 'fold' and 2 to 'raise': ")
+            if action.isdigit() and int(action) in valid_actions:
+                
+                return int(action)
+            else:
+                print("Invalid input. Please enter a valid action.")
+
