@@ -86,11 +86,24 @@ class Q_Learning_Agent(Agent):
 
     def train(self, tuple):
         #and now the training section, based on the previous tuple (knowledge)
+        old_q = list([np.argmax(i) for i in self.Q])
         state, prev_action, reward, next_state,  done = tuple
         if not prev_action is None: #it is None when the aent talks first
             target = reward +self.gamma*np.argmax(self.Q[next_state])*(not done)
             self.Q[state, prev_action]= (1-self.a)*self.Q[state, prev_action] + self.a*target
+
+        if(self.check_if_convergence(old_q)):self.conv += 1
+        else: self.conv = 0
+        if  (self.conv == 10_000):
+            print(old_q)
+        return (self.conv == 10_000)
         
+    
+    def check_if_convergence(self, old_q):
+        new_q = list([np.argmax(i) for i in self.Q])
+        for i,j in zip(old_q,new_q):
+            if(i!=j):return False
+        return True    
         
 
     def send_action(self, state, t):
@@ -189,7 +202,7 @@ class Human_Agent(Agent):
         self.interface_display()
         valid_actions = [0, 1, 2]
         while True:
-            action = input("Enter your action : Press 0 to 'check' or 'call, 1 to 'fold' and 2 to 'raise': ")
+            action = input("Enter your action : Press 0 to 'check' or 'call', 1 to 'fold' and 2 to 'raise': ")
             if action.isdigit() and int(action) in valid_actions:
                 
                 return int(action)
