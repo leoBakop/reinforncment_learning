@@ -54,7 +54,8 @@ def play_a_game(env: Env, agent: Agent, opponent:Agent, threshold=False, t = Non
                 
                 state = utils.return_state(state, threshold, agent,preflop_state)
                 if isinstance(agent, Q_Learning_Agent):
-                    agent.train([prev_state, action, reward, state, done])
+                    if(agent.train([prev_state, action, reward, state, done])):
+                        print("Training must end")
                 total_reward += reward
                 if done: break
                 state, reward, done = env.step(opponent.send_action(state, None, None), 1, t, previous_tuple, threshold=threshold, agent=agent)
@@ -74,7 +75,8 @@ def play_a_game(env: Env, agent: Agent, opponent:Agent, threshold=False, t = Non
                 state, reward, done=env.step(action, 0, t, previous_tuple, threshold=threshold, agent=agent)
                 state = utils.return_state(state, threshold, agent,preflop_state)
                 if isinstance(agent, Q_Learning_Agent):
-                    agent.train([prev_state, action, reward, state, done])
+                    if(agent.train([prev_state, action, reward, state, done])):
+                        print("Training must end")
                 total_reward += reward
                 if done: break
                 
@@ -117,7 +119,7 @@ def training_main(threshold, q_learning):
         s = np.random.randint(low = 1, high = horizon)
         env = Env(agent, opponent, number_of_cards=5, seed=s)
     
-    print(f"Total reward mean for the last 1000 iterations is {np.mean(reward[-1:-10000:-1])}")
+    print(f"Total reward mean for the last 1000 iterations is {np.mean(reward[-1:-1000:-1])}")
     if not q_learning:
         decisions = list([agent.pi(i) for i in range(33 if threshold else 20)])
         np.savetxt(f"./data/q_learning_{ q_learning}_threshold_{threshold}.csv", decisions)
@@ -165,8 +167,7 @@ def testing_main():
 
 if __name__ == "__main__":
 
-    q_learning = True
-
+    q_learning = False
     threshold = True
     train = True
     if(train):training_main(threshold = threshold, q_learning = q_learning)
