@@ -37,7 +37,7 @@ class Game:
         self.consecutive_raises = 0
         self.terminate_phase = 2 #shows how many bets we will have in just one phase (ex. the flop-phase etc)
         self.table = [Card('S', '-1')]*2
-
+        self.last_bet= [0]*2 
     def init_game(self):
         """
             Method that is called in the beginning of every game/hand of the "tournament"
@@ -57,6 +57,7 @@ class Game:
         self.mana = mana
         self.table = [Card('S', '-1')]*2
         self.consecutive_raises = 0
+        self.last_bet= [0]*2 
         return mana
 
     def step(self,action,player):
@@ -76,15 +77,16 @@ class Game:
        
 
         if action ==  1: #player folds
-                #the opponent wins
+            #the opponent wins
             return self.win(player,opponent), action
-        if action == 2: #player raises 
+        if action == 2: #player raises
+            
             self.consecutive_raises +=1
             if player != self.mana: self.terminate_phase = 3 #if player that talks second raise, then the opponent must answer in the same phase
             if self.opponent_last_action == 2: #if opponent raised 
-                
                 if self.total_money_per_player[player] >= 2: #if I have the money I should bet 2 tokens
                     self.pot +=2
+                    self.last_bet[player]= 2
                     self.total_money_per_player[player]-=2        
                 else: #else I lose
                     
@@ -92,6 +94,7 @@ class Game:
         
             elif self.total_money_per_player[player] >= 1:# if opponent didn't raise and i have enough money
                 self.pot +=1
+                self.last_bet[player]= 2
                 self.total_money_per_player[player]-=1
             else:# else you just lose
                 #so the opponent winds
@@ -126,7 +129,9 @@ class Game:
         
         return False, action
 
+    def all_in(self, player, opponent):
 
+        return
     def win(self,player, opponent):
         """ split the pot,
             terminates the hand

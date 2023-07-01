@@ -117,7 +117,7 @@ def training_main(threshold, q_learning):
         s = np.random.randint(low = 1, high = horizon)
         env = Env(agent, opponent, number_of_cards=5, seed=s)
     
-    print(f"Total reward mean for the last 1000 iterations is {np.mean(reward[-1:-1000:-1])}")
+    print(f"Total reward mean for the last 1000 iterations is {np.mean(reward[-1:-10000:-1])}")
     if not q_learning:
         decisions = list([agent.pi(i) for i in range(33 if threshold else 20)])
         np.savetxt(f"./data/q_learning_{ q_learning}_threshold_{threshold}.csv", decisions)
@@ -166,7 +166,8 @@ def testing_main():
 if __name__ == "__main__":
 
     q_learning = True
+
     threshold = True
-    train = False
+    train = True
     if(train):training_main(threshold = threshold, q_learning = q_learning)
     else: testing_main()

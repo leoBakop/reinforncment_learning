@@ -189,7 +189,7 @@ class Human_Agent(Agent):
         self.interface_display()
         valid_actions = [0, 1, 2]
         while True:
-            action = input("Enter your action : Press 0 to 'check' or 'call', 1 to 'fold' and 2 to 'raise': ")
+            action = input("Enter your action : Press 0 to 'check' or 'call, 1 to 'fold' and 2 to 'raise': ")
             if action.isdigit() and int(action) in valid_actions:
                 
                 return int(action)

@@ -516,7 +516,7 @@ P_THRESHOLD= {
             (0.2,15, 0.0,False)
         ],
        #action -fold
-        1: [(1, 9, BEST_REWARD, True)
+        1: [(1, 9,MED_REWARD, True)
         ],
        #action -raise
         2: [(0.2, 11, 0.0,False),
@@ -550,11 +550,11 @@ P_THRESHOLD= {
    11: { 
         #action - check
         0: [(0.5, 11, 0.0,False),
-            (0.5, 11, BEST_REWARD,True),
+            (0.5, 11, LOW_BEST_REWARD,True),
 
         ],
         #fold
-        1: [(1, 11, LOW_MED_REWARD,True)
+        1: [(1, 11, BEST_REWARD,True)
         ],
         #raise
         2: [(0.5, 11, MED_REWARD,True),
@@ -672,11 +672,11 @@ P_THRESHOLD= {
    18: { 
         #action - check
         0: [(0.5, 18, 0.0,False),
-            (0.5, 18, BEST_REWARD,True),
+            (0.5, 18, MED_REWARD,True),
 
         ],
         #fold
-        1: [(1, 18, LOW_MED_REWARD,True)
+        1: [(1, 18, BEST_REWARD,True)
         ],
         #raise
         2: [(0.5, 18, WORST_REWARD,True),
