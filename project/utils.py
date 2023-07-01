@@ -357,7 +357,7 @@ The order of the each tuple is [card in hand, card on the table, phase, opponent
 2: raise
 '''
 
-P_THRESHOLD= {
+P_THRESHOLD_D= {    
     # A-AA or A-A* whatever the opp does, raise
    0: { 
         #action - check
@@ -446,14 +446,14 @@ P_THRESHOLD= {
    5: { 
         #action - check
         0: [(0.5, 5, 0.0,False),
-            (0.5, 5, LOW_MED_REWARD,True),
+            (0.5, 5, BEST_REWARD,True),
 
         ],
         #fold
         1: [(1, 5, WORST_REWARD,True)
         ],
         #raise
-        2: [(0.5, 5, BEST_REWARD,True),
+        2: [(0.5, 5, LOW_MED_REWARD,True),
             (0.5, 5, 0.0,False)
 
         ]
@@ -613,14 +613,14 @@ P_THRESHOLD= {
      15: { 
         #action - check
         0: [(0.5, 8, 0.0,False),
-            (0.5, 8, BEST_REWARD,True),
+            (0.5, 8, LOW_BEST_REWARD,True),
 
         ],
         #fold
         1: [(1, 8, LOW_BEST_REWARD,True)
         ],
         #raise
-        2: [(0.5, 8, LOW_MED_REWARD,True),
+        2: [(0.5, 8, BEST_REWARD,True),
             (0.5, 8, 0.0,False)
 
         ]
@@ -695,7 +695,7 @@ P_THRESHOLD= {
         1: [(1, 19, WORST_REWARD,True)
         ],
         #raise
-        2: [(0.5, 19, LOW_MED_REWARD,True),
+        2: [(0.5, 19, BEST_REWARD,True),
             (0.5, 19, 0.0,False)
 
         ]
@@ -811,11 +811,11 @@ P_THRESHOLD= {
    26: { 
         #action - check
         0: [(0.5, 26, 0.0,False),
-            (0.5, 26, BEST_REWARD,True),
+            (0.5, 26, LOW_BEST_REWARD,True),
 
         ],
         #fold
-        1: [(1, 26, LOW_BEST_REWARD,True)
+        1: [(1, 26, BEST_REWARD,True)
         ],
         #raise
         2: [(0.5, 26, LOW_MED_REWARD,True),
@@ -875,7 +875,574 @@ P_THRESHOLD= {
    30: { 
         #action - check
         0: [(0.5, 30, 0.0,False),
-            (0.5, 30, WORST_REWARD,True),
+            (0.5, 30, MED_REWARD,True),
+
+        ],
+        #fold
+        1: [(1, 30, BEST_REWARD,True)
+        ],
+        #raise
+        2: [(0.5, 30, WORST_REWARD,True),
+            (0.5, 30, 0.0,False)
+
+        ]
+    },
+#31: T- **, flop, check
+   31: { 
+        #action - check
+        0: [(0.5, 31, 0.0,False),
+            (0.5, 31, BEST_REWARD,True),
+
+        ],
+        #fold
+        1: [(1, 31, LOW_MED_REWARD,True)
+        ],
+        #raise
+        2: [(0.5, 31, WORST_REWARD,True),
+            (0.5, 31, 0.0,False)
+
+        ]
+    },
+#32: A- pre flop any opp action -- better raise 
+   32: {
+        #action - check
+        0: [(0.33, 0, 0.0,False),
+            (0.33, 1, 0.0,False),
+            (0.33, 2, 0.0,False)
+            
+        ],
+       #action -fold
+        1: [(1, 32, WORST_REWARD, True)
+        ],
+       #action -raise
+        2: [(0.33, 0, 0.0,False),
+            (0.33, 1, 0.0,False),
+            (0.33, 2, 0.0,False)
+            
+        ]
+    },
+
+}
+
+P_THRESHOLD_A= {
+   # A-AA or A-A* whatever the opp does, raise
+    0: { 
+        #action - check
+        0: [(0.5, 0, 0.0,False),
+            (0.5, 0, LOW_MED_REWARD,True),
+
+        ],
+        #fold
+        1: [(1, 0, WORST_REWARD,True)
+        ],
+        #raise
+        2: [(0.5, 0, BEST_REWARD,True),
+            (0.5, 0, 0.0,False)
+
+        ]
+    },
+    1: { #A- ** , flop, raise  if the opp raised, he has sth. Better fold.
+        #action - check
+        0: [(0.5, 1, 0.0,False),
+            (0.5, 1, LOW_MED_REWARD,True),
+
+        ],
+        #fold
+        1: [(1, 1, BEST_REWARD,True)
+        ],
+        #raise
+        2: [(0.5, 1, WORST_REWARD,True),
+            (0.5, 1, 0.0,False)
+
+        ]
+    },
+
+   2: { #A- **, flop, check : The opponent doesnt have sth good. Raise.
+        #action - check
+        0: [(0.5, 2, 0.0,False),
+            (0.5, 2, LOW_MED_REWARD,True),
+
+        ],
+        #fold
+        1: [(1, 2, WORST_REWARD,True)
+        ],
+        #raise
+        2: [(0.5, 2, BEST_REWARD,True),
+            (0.5, 2, 0.0,False)
+
+        ]
+    },
+
+# K- pre flop, raise : low best is to raise 
+   3: {
+        #action - check
+        0: [(0.25, 5, 0.0,False),
+            (0.25, 6, 0.0,False),
+            (0.25, 7, 0.0,False),
+            (0.25,8,0.0,False)
+        ],
+       #action -fold
+        1: [(1, 3, WORST_REWARD, True)
+        ],
+       #action -raise
+        2: [(0.25, 5, 0.0,False),
+            (0.25, 6, 0.0,False),
+            (0.25, 7, 0.0,False),
+            (0.25, 8, 0.0,False)
+        ]
+    },
+#K pre flop, check or no info
+   4: {
+        #action - check
+        0: [(0.25, 5, 0.0,False),
+            (0.25, 6, 0.0,False),
+            (0.25, 7, 0.0,False),
+            (0.25,8,0.0,False)
+        ],
+       #action -fold
+        1: [(1, 3, WORST_REWARD, True)
+        ],
+       #action -raise
+        2: [(0.25, 5, 0.0,False),
+            (0.25, 6, 0.0,False),
+            (0.25, 7, 0.0,False),
+            (0.25, 8, 0.0,False)
+        ]
+    },
+#5: K-K* flop, raise or check : we probably have the winning card, lets raise 
+   5: { 
+        #action - check
+        0: [(0.5, 5, 0.0,False),
+            (0.5, 5, LOW_BEST_REWARD,True),
+
+        ],
+        #fold
+        1: [(1, 5, WORST_REWARD,True)
+        ],
+        #raise
+        2: [(0.5, 5, BEST_REWARD,True),
+            (0.5, 5, 0.0,False)
+
+        ]
+    },
+#6: K-KK flop, raise or check : we have the winning hand unless the opp has A-AA -- best to raise 
+   6: { 
+        #action - check
+        0: [(0.5, 6, 0.0,False),
+            (0.5, 6, BEST_REWARD,True),
+
+        ],
+        #fold
+        1: [(1, 6, WORST_REWARD,True)
+        ],
+        #raise
+        2: [(0.5, 6, BEST_REWARD,True),
+            (0.5, 6, 0.0,False)
+
+        ]
+    },
+#7:  K-** flop, raise -- the other has sth, best is check otherwise fold
+   7: { 
+        #action - check
+        0: [(0.5, 7, 0.0,False),
+            (0.5, 7, LOW_BEST_REWARD,True),
+
+        ],
+        #fold
+        1: [(1, 7, BEST_REWARD,True)
+        ],
+        #raise
+        2: [(0.5, 7, WORST_REWARD,True),
+            (0.5, 7, 0.0,False)
+
+        ]
+    },
+#8 : K-** flop, check -- they dont have anything, ur probably bettterrrr-- low best is raise
+    8: { 
+        #action - check
+        0: [(0.5, 8, 0.0,False),
+            (0.5, 8, BEST_REWARD,True),
+
+        ],
+        #fold
+        1: [(1, 8, LOW_MED_REWARD,True)
+        ],
+        #raise
+        2: [(0.5, 8, LOW_BEST_REWARD,True),
+            (0.5, 8, 0.0,False)
+
+        ]
+    },
+#9: Q pre flop raise 
+   9: {
+        #action - check
+        0: [(0.2, 11, 0.0,False),
+            (0.2, 12, 0.0,False),
+            (0.2, 13, 0.0,False),
+            (0.2,14, 0.0,False),
+            (0.2,15, 0.0,False)
+        ],
+       #action -fold
+        1: [(1, 9,MED_REWARD, True)
+        ],
+       #action -raise
+        2: [(0.2, 11, 0.0,False),
+            (0.2, 12, 0.0,False),
+            (0.2, 13, 0.0,False),
+            (0.2,14, 0.0,False),
+            (0.2,15, 0.0,False)
+        ]
+    },
+#10: Q pre flop check , no info
+    10: {
+    #action - check
+    0: [(0.2, 11, 0.0,False),
+        (0.2, 12, 0.0,False),
+        (0.2, 13, 0.0,False),
+        (0.2,14, 0.0,False),
+        (0.2,15, 0.0,False)
+    ],
+    #action -fold
+    1: [(1, 9, WORST_REWARD, True)
+    ],
+    #action -raise
+    2: [(0.2, 11, 0.0,False),
+        (0.2, 12, 0.0,False),
+        (0.2, 13, 0.0,False),
+        (0.2,14, 0.0,False),
+        (0.2,15, 0.0,False)
+    ]
+},
+#11: Q-Q* ,flop, raise 
+   11: { 
+        #action - check
+        0: [(0.5, 11, 0.0,False),
+            (0.5, 11, LOW_BEST_REWARD,True),
+
+        ],
+        #fold
+        1: [(1, 11, MED_REWARD,True)
+        ],
+        #raise
+        2: [(0.5, 11, BEST_REWARD,True),
+            (0.5, 11, 0.0,False)
+
+        ]
+    },
+#12: Q-Q*, flop, check  --
+    12: { 
+        #action - check
+        0: [(0.5, 12, 0.0,False),
+            (0.5, 12, MED_REWARD,True),
+
+        ],
+        #fold
+        1: [(1, 12, WORST_REWARD,True)
+        ],
+        #raise
+        2: [(0.5, 12, BEST_REWARD,True),
+            (0.5, 12, 0.0,False)
+
+        ]
+    },  
+#13: Q-QQ , flop raise or check  
+   13: { 
+        #action - check
+        0: [(0.5, 13, 0.0,False),
+            (0.5, 13, WORST_REWARD,True),
+
+        ],
+        #fold
+        1: [(1, 13, WORST_REWARD,True)
+        ],
+        #raise
+        2: [(0.5, 13, BEST_REWARD,True),
+            (0.5, 13, 0.0,False)
+        ]
+    },
+#14: Q- ** , flop, raise -- we have nothing , they have sth--fold
+   14: { 
+        #action - check
+        0: [(0.5, 14, 0.0,False),
+            (0.5, 14, LOW_BEST_REWARD,True),
+
+        ],
+        #fold
+        1: [(1, 14, BEST_REWARD,True)
+        ],
+        #raise
+        2: [(0.5, 14, WORST_REWARD,True),
+            (0.5, 14, 0.0,False)
+
+        ]
+    },
+#15: Q- **, flop, check --you both have nothing its goona be highest card winning
+     15: { 
+        #action - check
+        0: [(0.5, 8, 0.0,False),
+            (0.5, 8, LOW_BEST_REWARD,True),
+
+        ],
+        #fold
+        1: [(1, 8, LOW_BEST_REWARD,True)
+        ],
+        #raise
+        2: [(0.5, 8, BEST_REWARD,True),
+            (0.5, 8, 0.0,False)
+
+        ]
+    },
+#16: J pre flop, raise--fold
+   16: {
+        #action - check
+        0: [(0.2, 18, 0.0,False),
+            (0.2, 19, 0.0,False),
+            (0.2, 20, 0.0,False),
+            (0.2,21, 0.0,False),
+            (0.2,22, 0.0,False),
+            (0.2,23, 0.0,False)
+        ],
+       #action -fold
+        1: [(1, 16, LOW_MED_REWARD, True)
+        ],
+       #action -raise
+        2: [(0.2, 18, 0.0,False),
+            (0.2, 19, 0.0,False),
+            (0.2, 20, 0.0,False),
+            (0.2,21, 0.0,False),
+            (0.2,22, 0.0,False),
+            (0.2,23, 0.0,False)]
+    },
+#17: J pre flop, check - no info
+   17: {
+        #action - check
+        0: [(0.2, 18, 0.0,False),
+            (0.2, 19, 0.0,False),
+            (0.2, 20, 0.0,False),
+            (0.2,21, 0.0,False),
+            (0.2,22, 0.0,False),
+            (0.2,23, 0.0,False)
+        ],
+       #action -fold
+        1: [(1, 17, LOW_MED_REWARD, True)
+        ],
+       #action -raise
+        2: [(0.2, 18, 0.0,False),
+            (0.2, 19, 0.0,False),
+            (0.2, 20, 0.0,False),
+            (0.2,21, 0.0,False),
+            (0.2,22, 0.0,False),
+            (0.2,23, 0.0,False)]
+    },
+
+#18:J-J*, flop, raise  --probs has sth better,still better not fold
+   18: { 
+        #action - check
+        0: [(0.5, 18, 0.0,False),
+            (0.5, 18, MED_REWARD,True),
+
+        ],
+        #fold
+        1: [(1, 18, BEST_REWARD,True)
+        ],
+        #raise
+        2: [(0.5, 18, WORST_REWARD,True),
+            (0.5, 18, 0.0,False)
+
+        ]
+    },
+#19: J-J*, flop, check --they have nothing. I win probs, raise 
+   19: { 
+        #action - check
+        0: [(0.5, 19, 0.0,False),
+            (0.5, 19, MED_REWARD,True),
+
+        ],
+        #fold
+        1: [(1, 19, WORST_REWARD,True)
+        ],
+        #raise
+        2: [(0.5, 19, BEST_REWARD,True),
+            (0.5, 19, 0.0,False)
+
+        ]
+    },
+#20:J -JJ, flop, raise 
+   20: { 
+        #action - check
+        0: [(0.5, 20, 0.0,False),
+            (0.5, 20, LOW_MED_REWARD,True),
+
+        ],
+        #fold
+        1: [(1, 20, WORST_REWARD,True)
+        ],
+        #raise
+        2: [(0.5, 20, LOW_BEST_REWARD,True),
+            (0.5, 20, 0.0,False)
+        ]
+    },
+#21:J - JJ, flop, check -- i win. raise only.
+   21: { 
+        #action - check
+        0: [(0.5, 21, 0.0,False),
+            (0.5, 21, WORST_REWARD,True),
+
+        ],
+        #fold
+        1: [(1, 21, WORST_REWARD,True)
+        ],
+        #raise
+        2: [(0.5, 21, BEST_REWARD,True),
+            (0.5, 21, 0.0,False)
+
+        ]
+    },
+
+#22:J- ** , flop, raise --fold asap
+   22: { 
+        #action - check
+        0: [(0.5, 22, 0.0,False),
+            (0.5, 22, WORST_REWARD,True),
+
+        ],
+        #fold
+        1: [(1, 22, BEST_REWARD,True)
+        ],
+        #raise
+        2: [(0.5, 22, WORST_REWARD,True),
+            (0.5, 22, 0.0,False)
+
+        ]
+    },
+
+#23:J- **, flop, check
+   23: { 
+        #action - check
+        0: [(0.5, 23, 0.0,False),
+            (0.5, 23, BEST_REWARD,True),
+
+        ],
+        #fold
+        1: [(1, 23, LOW_BEST_REWARD,True)
+        ],
+        #raise
+        2: [(0.5, 23, WORST_REWARD,True),
+            (0.5, 23, 0.0,False)
+
+        ]
+    },
+#24:T pre flop, raise
+   24: {
+        #action - check
+        0: [(0.2, 26, 0.0,False),
+            (0.2, 27, 0.0,False),
+            (0.2, 28, 0.0,False),
+            (0.2,29, 0.0,False),
+            (0.2,30, 0.0,False),
+            (0.2,31, 0.0,False)
+        ],
+       #action -fold
+        1: [(1, 24, LOW_MED_REWARD, True)
+        ],
+       #action -raise
+        2: [(0.2, 26, 0.0,False),
+            (0.2, 27, 0.0,False),
+            (0.2, 28, 0.0,False),
+            (0.2,29, 0.0,False),
+            (0.2,30, 0.0,False),
+            (0.2,31, 0.0,False)]
+    },
+#25: T pre flop, check/no info
+   25: {
+        #action - check
+        0: [(0.2, 26, 0.0,False),
+            (0.2, 27, 0.0,False),
+            (0.2, 28, 0.0,False),
+            (0.2,29, 0.0,False),
+            (0.2,30, 0.0,False),
+            (0.2,31, 0.0,False)
+        ],
+       #action -fold
+        1: [(1, 24, WORST_REWARD, True)
+        ],
+       #action -raise
+        2: [(0.2, 26, 0.0,False),
+            (0.2, 27, 0.0,False),
+            (0.2, 28, 0.0,False),
+            (0.2,29, 0.0,False),
+            (0.2,30, 0.0,False),
+            (0.2,31, 0.0,False)]
+    },
+#26: T -T*,  flop, raise
+   26: { 
+        #action - check
+        0: [(0.5, 26, 0.0,False),
+            (0.5, 26, LOW_BEST_REWARD,True),
+
+        ],
+        #fold
+        1: [(1, 26, BEST_REWARD,True)
+        ],
+        #raise
+        2: [(0.5, 26, LOW_MED_REWARD,True),
+            (0.5, 26, 0.0,False)
+
+        ]
+    },
+#27:T-T*, flop, check - im winning 
+   27: { 
+        #action - check
+        0: [(0.5, 27, 0.0,False),
+            (0.5, 27, LOW_MED_REWARD,True),
+
+        ],
+        #fold
+        1: [(1, 27, WORST_REWARD,True)
+        ],
+        #raise
+        2: [(0.5, 27, BEST_REWARD,True),
+            (0.5, 27, 0.0,False)
+
+        ]
+    },
+#28:T-TT, flop, raise
+   28: { 
+        #action - check
+        0: [(0.5, 28, 0.0,False),
+            (0.5, 28, MED_REWARD,True),
+
+        ],
+        #fold
+        1: [(1, 28, WORST_REWARD,True)
+        ],
+        #raise
+        2: [(0.5, 28, BEST_REWARD,True),
+            (0.5, 28, 0.0,False)
+
+        ]
+    },
+#29:T- TT, flop, check - i win for sure.
+   29: { 
+        #action - check
+        0: [(0.5, 29, 0.0,False),
+            (0.5, 29, WORST_REWARD,True),
+
+        ],
+        #fold
+        1: [(1, 29, WORST_REWARD,True)
+        ],
+        #raise
+        2: [(0.5, 29, BEST_REWARD,True),
+            (0.5, 29, 0.0,False)
+
+        ]
+    },
+#30 :T- ** , flop, raise --fold.
+   30: { 
+        #action - check
+        0: [(0.5, 30, 0.0,False),
+            (0.5, 30, MED_REWARD,True),
 
         ],
         #fold
@@ -926,42 +1493,6 @@ P_THRESHOLD= {
 
 
 
-
-FOLD_REWARDS = {
-    0:WORST_REWARD,
-    1:BEST_REWARD,
-    2:WORST_REWARD,
-    3:WORST_REWARD,
-    4:WORST_REWARD,
-    5:WORST_REWARD,
-    6:WORST_REWARD,
-    7:BEST_REWARD,
-    8:MED_REWARD,
-    9:WORST_REWARD,
-    10:WORST_REWARD,
-    11:WORST_REWARD,
-    12:WORST_REWARD,
-    13:WORST_REWARD,
-    14:BEST_REWARD,
-    15:MED_REWARD,
-    16:WORST_REWARD,
-    17:WORST_REWARD,
-    18:MED_REWARD,
-    19:WORST_REWARD,
-    20:WORST_REWARD,
-    21:WORST_REWARD,
-    22:BEST_REWARD,
-    23:MED_REWARD,
-    24:MED_REWARD,
-    25:WORST_REWARD,
-    26:MED_REWARD,
-    27:WORST_REWARD,
-    28:WORST_REWARD,
-    29:WORST_REWARD,
-    30:BEST_REWARD,
-    31:BEST_REWARD,
-    32:WORST_REWARD
-}
 
 
 

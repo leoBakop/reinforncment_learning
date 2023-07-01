@@ -27,7 +27,7 @@ class Env:
         #storing the opponents move in order to return it on state
         self.last_opponent_move = -1
 
-    def reset(self):
+    def reset(self, disp = False):
 
         
         self.mana = self.game.init_game()
@@ -49,6 +49,7 @@ class Env:
         done = False
         self.table = [Card('S', '-1')]*2
         state = self.form_state()
+        self.disp = disp
         return state, self.mana, done
     
     def calulate_chips(self):
@@ -73,15 +74,7 @@ class Env:
         done, a = self.game.step(action, player) #a is the action aw it was translated from the game
         #if opponent is playing, then store its move 
         self.last_opponent_move = a if player == 1 else  self.last_opponent_move
-        """  if(player  == 0 and a == 1):#if our agent fold
-            state = self.form_state()
-
-            s = utils.return_state( state_vector=state, 
-                                    threshold=threshold,
-                                    agent=agent,
-                                    preflop_state = utils.convert_pre_flop_state_to_num(state[0:5])
-                                    )
-            return state, 0.1*utils.FOLD_REWARDS.get(s,0), True """
+        
             
         if (player == 0 and a == 2):#in case that the agent raises
             #then I should reduce the agents chips
@@ -99,7 +92,7 @@ class Env:
                 new_action = next_player.send_action(enumarated_state, t)
                 #next_player.train(previous_tuple)
             else:
-
+                if(self.disp):print("Re-raise")
                 new_action = next_player.send_action(enumarated_state, None, None) # a method that every agent should implememnt, taking a state, returning an action
             #done, a= self.game.step(new_action, np.abs(player-1))
             return self.step(new_action, np.abs(player - 1), t, previous_tuple, threshold=threshold, agent=agent)

@@ -107,15 +107,12 @@ class Q_Learning_Agent(Agent):
         
 
     def send_action(self, state, t):
-        k = self.action_size
-        if (not self.threshold) and (not self.against_human): #plays ganst random
-            self.eps =(1/((t)**(1/3)))*((k*np.log(t))**(1/3)) if t > 2 else 1 
-        elif self.threshold: #plays against threshold
-            self.eps = max(0.9999749*self.eps, .01)
-        else: #against human
-            self.eps = .01
-        if not self.ante:
-            self.eps =  max(0.9999997*self.eps, .01) #exploration without ante
+        
+       
+        self.eps = max(0.9999749*self.eps, .01)
+        if self.against_human: #against human
+            self.eps = .001
+        
         
         
         if self.eps < .0101 and self.disp:
@@ -146,7 +143,7 @@ class Random_Agent(Agent):
     
 
 
-class Threshold_Agent(Agent):
+class Threshold_Agent_D(Agent):
   
     def set_hand(self, hand):
         self.hand = hand
@@ -158,7 +155,7 @@ class Threshold_Agent(Agent):
         
         cards_and_actions_round_0 = {
             "T": 1,
-            "J": 0,
+            "J": 1,
             "Q":0,
             "K":0,
             "A": 2
@@ -168,8 +165,25 @@ class Threshold_Agent(Agent):
             return cards_and_actions_round_0.get(self.hand.rank, 0) #by default check
         for card in self.table:
             if card.rank == self.hand.rank: return 2
-        return 0
+        return 1
     
+    
+class Threshold_Agent_A(Threshold_Agent_D):
+    def send_action(self, state, useless_1, useless_2):
+        
+        cards_and_actions_round_0 = {
+            "T": 0,
+            "J": 0,
+            "Q":2,
+            "K":2,
+            "A": 2
+        }
+
+        if self.round == 0:
+            return cards_and_actions_round_0.get(self.hand.rank, 0) #by default check
+        for card in self.table:
+            if card.rank == self.hand.rank: return 2
+        return 0
 
 class Human_Agent(Agent):
 
