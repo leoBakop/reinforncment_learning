@@ -110,7 +110,7 @@ def training_main(threshold, q_learning, aggressive):
         opponent = Random_Agent(seed = seed) 
 
     horizon = 80_000 if threshold else  80_000
-    horizon = 10_000 if not q_learning else horizon
+    horizon = 80_000 if not q_learning else horizon
     
     env = Env(agent, opponent, number_of_cards=5, seed=np.random.randint(low=1, high = horizon))
     r = np.zeros(horizon)
@@ -132,6 +132,7 @@ def training_main(threshold, q_learning, aggressive):
         np.savetxt(f"./data/q_learning_{ q_learning}_threshold_{threshold}_aggressive_{aggressive}.csv", decisions)
         np.savetxt("./data/q_agent.csv", agent.Q, delimiter = ',')
 
+    np.savetxt(f"./data/rewards/q_learning_{ q_learning}_threshold_{threshold}_aggressive_{aggressive}.csv", r)
     
     plt.figure(1)
     plt.title(f" Agent's Reward ") 
@@ -154,7 +155,6 @@ def testing_main():
     env = Env(agent, opponent, number_of_cards=5, seed=np.random.randint(low=1, high = horizon))
     r = np.zeros(horizon)
     reward = np.zeros(horizon)
-    dt = .000001
     for t in tqdm(range(horizon), desc= "Processing items", unit = "item"):
         
         reward[t] = play_a_game(env,agent,opponent, threshold=threshold, t=t, disp= True)
@@ -165,7 +165,7 @@ def testing_main():
 if __name__ == "__main__":
 
     q_learning = True
-    threshold = True
+    threshold = False
     aggressive = False
     train = True
     if(train):training_main(threshold = threshold, q_learning = q_learning, aggressive = aggressive)
