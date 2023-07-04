@@ -24,17 +24,17 @@ P = {
     # A - pre flop
    0: {
         #action - check
-        0: [(0.35, 1, 0.0,False),
-            (0.3, 2, 0.0,False),
-            (0.35,3,0.0,False)
+        0: [(0.2, 1, 0.0,False),
+            (0.1, 2, 0.0,False),
+            (0.7,3,0.0,False)
         ],
        #action -fold
         1: [(1, 0, WORST_REWARD, True)
         ],
        #action -raise
-        2: [(0.35, 1, 0.0,False),
-            (0.3, 2, 0.0,False),
-            (0.35, 3, 0.0,False)
+        2: [(0.2, 1, 0.0,False),
+            (0.1, 2, 0.0,False),
+            (0.7, 3, 0.0,False)
         ]
     },
      #A- A*
@@ -86,17 +86,17 @@ P = {
     # K - pre flop
    4: {
         #check
-        0: [(0.35, 5, 0.0,False),
-            (0.3, 6, 0.0,False),
-            (0.35,7,0.0,False)
+        0: [(0.2, 5, 0.0,False),
+            (0.1, 6, 0.0,False),
+            (0.7,7,0.0,False)
         ],
        #fold
         1: [(1, 4, WORST_REWARD, True)
         ],
        #raise
-        2: [(0.35, 5, 0.0,False),
-            (0.3, 6, 0.0,False),
-            (0.35, 7, 0.0,False)
+        2: [(0.2, 5, 0.0,False),
+            (0.1, 6, 0.0,False),
+            (0.7, 7, 0.0,False)
         ]
     },
      #K- K*
@@ -148,17 +148,17 @@ P = {
     # Q - pre flop
     8: {
         #check
-        0: [(0.35,9, 0.0,False),
-            (0.3, 10, 0.0,False),
-            (0.35,11,0.0,False)
+        0: [(0.2,9, 0.0,False),
+            (0.1, 10, 0.0,False),
+            (0.7,11,0.0,False)
         ],
        #fold
         1: [(1, 8, WORST_REWARD, True)
         ],
        #raise
-        2: [(0.35, 9, 0.0,False),
-            (0.3, 10, 0.0,False),
-            (0.35,11, 0.0,False)
+        2: [(0.2, 9, 0.0,False),
+            (0.1, 10, 0.0,False),
+            (0.7,11, 0.0,False)
         ]
     },
      #Q- Q*
@@ -210,17 +210,17 @@ P = {
     # J - pre flop
    12: {
         #check
-        0: [(0.35,13, 0.0,False),
-            (0.3, 14, 0.0,False),
-            (0.35,15,0.0,False)
+        0: [(0.2,13, 0.0,False),
+            (0.1, 14, 0.0,False),
+            (0.7,15,0.0,False)
         ],
        #fold
         1: [(1, 12, WORST_REWARD, True)
         ],
        #raise
-        2: [(0.35,13, 0.0,False),
-            (0.3, 14, 0.0,False),
-            (0.35,15, 0.0,False)
+        2: [(0.2,13, 0.0,False),
+            (0.1, 14, 0.0,False),
+            (0.7,15, 0.0,False)
         ]
     },
      #J- J*
@@ -272,17 +272,17 @@ P = {
     # 10 - pre flop
    16: {
         #action - check
-        0: [(0.35, 17, 0.0,False),
-            (0.3, 18, 0.0,False),
-            (0.35,19,0.0,False)
+        0: [(0.2, 17, 0.0,False),
+            (0.1, 18, 0.0,False),
+            (0.7,19,0.0,False)
         ],
        #action -fold
         1: [(1, 16, LOW_MED_REWARD, True)
         ],
        #action -raise
-        2: [(0.35, 17, 0.0,False),
-            (0.3, 18, 0.0,False),
-            (0.35, 19, 0.0,False)
+        2: [(0.2, 17, 0.0,False),
+            (0.1, 18, 0.0,False),
+            (0.7, 19, 0.0,False)
         ]
     },
      #10-10*
@@ -409,37 +409,37 @@ P_THRESHOLD_D= {
 # K- pre flop, raise : low best is to raise 
    3: {
         #action - check
-        0: [(0.25, 5, 0.0,False),
-            (0.25, 6, 0.0,False),
-            (0.25, 7, 0.0,False),
-            (0.25,8,0.0,False)
+        0: [(0.2, 5, 0.0,False),
+            (0.1, 6, 0.0,False),
+            (0.35, 7, 0.0,False),
+            (0.35,8,0.0,False)
         ],
        #action -fold
         1: [(1, 3, WORST_REWARD, True)
         ],
        #action -raise
-        2: [(0.25, 5, 0.0,False),
-            (0.25, 6, 0.0,False),
-            (0.25, 7, 0.0,False),
-            (0.25, 8, 0.0,False)
+        2: [(0.2, 5, 0.0,False),
+            (0.1, 6, 0.0,False),
+            (0.35, 7, 0.0,False),
+            (0.35, 8, 0.0,False)
         ]
     },
 #K pre flop, check or no info
    4: {
         #action - check
-        0: [(0.25, 5, 0.0,False),
-            (0.25, 6, 0.0,False),
-            (0.25, 7, 0.0,False),
-            (0.25,8,0.0,False)
+        0: [(0.2, 5, 0.0,False),
+            (0.1, 6, 0.0,False),
+            (0.35, 7, 0.0,False),
+            (0.35,8,0.0,False)
         ],
        #action -fold
         1: [(1, 3, WORST_REWARD, True)
         ],
        #action -raise
-        2: [(0.25, 5, 0.0,False),
-            (0.25, 6, 0.0,False),
-            (0.25, 7, 0.0,False),
-            (0.25, 8, 0.0,False)
+        2: [(0.2, 5, 0.0,False),
+            (0.1, 6, 0.0,False),
+            (0.35, 7, 0.0,False),
+            (0.35, 8, 0.0,False)
         ]
     },
 #5: K-K* flop, raise or check : we probably have the winning card, lets raise 
@@ -509,41 +509,41 @@ P_THRESHOLD_D= {
 #9: Q pre flop raise 
    9: {
         #action - check
-        0: [(0.2, 11, 0.0,False),
-            (0.2, 12, 0.0,False),
-            (0.2, 13, 0.0,False),
-            (0.2,14, 0.0,False),
-            (0.2,15, 0.0,False)
+        0: [(0.1, 11, 0.0,False),
+            (0.1, 12, 0.0,False),
+            (0.1, 13, 0.0,False),
+            (0.35,14, 0.0,False),
+            (0.35,15, 0.0,False)
         ],
        #action -fold
         1: [(1, 9,MED_REWARD, True)
         ],
        #action -raise
-        2: [(0.2, 11, 0.0,False),
-            (0.2, 12, 0.0,False),
-            (0.2, 13, 0.0,False),
-            (0.2,14, 0.0,False),
-            (0.2,15, 0.0,False)
+        2: [(0.1, 11, 0.0,False),
+            (0.1, 12, 0.0,False),
+            (0.1, 13, 0.0,False),
+            (0.35,14, 0.0,False),
+            (0.35,15, 0.0,False)
         ]
     },
 #10: Q pre flop check , no info
     10: {
     #action - check
-    0: [(0.2, 11, 0.0,False),
-        (0.2, 12, 0.0,False),
-        (0.2, 13, 0.0,False),
-        (0.2,14, 0.0,False),
-        (0.2,15, 0.0,False)
+    0: [(0.1, 11, 0.0,False),
+        (0.1, 12, 0.0,False),
+        (0.1, 13, 0.0,False),
+        (0.35,14, 0.0,False),
+        (0.35,15, 0.0,False)
     ],
     #action -fold
     1: [(1, 9, WORST_REWARD, True)
     ],
     #action -raise
-    2: [(0.2, 11, 0.0,False),
-        (0.2, 12, 0.0,False),
-        (0.2, 13, 0.0,False),
-        (0.2,14, 0.0,False),
-        (0.2,15, 0.0,False)
+    2: [(0.1, 11, 0.0,False),
+        (0.1, 12, 0.0,False),
+        (0.1, 13, 0.0,False),
+        (0.35,14, 0.0,False),
+        (0.35,15, 0.0,False)
     ]
 },
 #11: Q-Q* ,flop, raise 
@@ -628,44 +628,44 @@ P_THRESHOLD_D= {
 #16: J pre flop, raise--fold
    16: {
         #action - check
-        0: [(0.2, 18, 0.0,False),
-            (0.2, 19, 0.0,False),
-            (0.2, 20, 0.0,False),
-            (0.2,21, 0.0,False),
-            (0.2,22, 0.0,False),
-            (0.2,23, 0.0,False)
+        0: [(0.1, 18, 0.0,False),
+            (0.1, 19, 0.0,False),
+            (0.05, 20, 0.0,False),
+            (0.05,21, 0.0,False),
+            (0.35,22, 0.0,False),
+            (0.35,23, 0.0,False)
         ],
        #action -fold
         1: [(1, 16, LOW_MED_REWARD, True)
         ],
        #action -raise
-        2: [(0.2, 18, 0.0,False),
-            (0.2, 19, 0.0,False),
-            (0.2, 20, 0.0,False),
-            (0.2,21, 0.0,False),
-            (0.2,22, 0.0,False),
-            (0.2,23, 0.0,False)]
+        2: [(0.1, 18, 0.0,False),
+            (0.1, 19, 0.0,False),
+            (0.05, 20, 0.0,False),
+            (0.05,21, 0.0,False),
+            (0.35,22, 0.0,False),
+            (0.35,23, 0.0,False)]
     },
 #17: J pre flop, check - no info
    17: {
         #action - check
-        0: [(0.2, 18, 0.0,False),
-            (0.2, 19, 0.0,False),
-            (0.2, 20, 0.0,False),
-            (0.2,21, 0.0,False),
-            (0.2,22, 0.0,False),
-            (0.2,23, 0.0,False)
+        0: [(0.1, 18, 0.0,False),
+            (0.1, 19, 0.0,False),
+            (0.05, 20, 0.0,False),
+            (0.05,21, 0.0,False),
+            (0.35,22, 0.0,False),
+            (0.35,23, 0.0,False)
         ],
        #action -fold
         1: [(1, 17, LOW_MED_REWARD, True)
         ],
        #action -raise
-        2: [(0.2, 18, 0.0,False),
-            (0.2, 19, 0.0,False),
-            (0.2, 20, 0.0,False),
-            (0.2,21, 0.0,False),
-            (0.2,22, 0.0,False),
-            (0.2,23, 0.0,False)]
+        2: [(0.1, 18, 0.0,False),
+            (0.1, 19, 0.0,False),
+            (0.05, 20, 0.0,False),
+            (0.05,21, 0.0,False),
+            (0.35,22, 0.0,False),
+            (0.35,23, 0.0,False)]
     },
 
 #18:J-J*, flop, raise  --probs has sth better,still better not fold
@@ -768,44 +768,44 @@ P_THRESHOLD_D= {
 #24:T pre flop, raise
    24: {
         #action - check
-        0: [(0.2, 26, 0.0,False),
-            (0.2, 27, 0.0,False),
-            (0.2, 28, 0.0,False),
-            (0.2,29, 0.0,False),
-            (0.2,30, 0.0,False),
-            (0.2,31, 0.0,False)
+        0: [(0.1, 26, 0.0,False),
+            (0.1, 27, 0.0,False),
+            (0.05, 28, 0.0,False),
+            (0.05,29, 0.0,False),
+            (0.35,30, 0.0,False),
+            (0.35,31, 0.0,False)
         ],
        #action -fold
         1: [(1, 24, LOW_MED_REWARD, True)
         ],
        #action -raise
-        2: [(0.2, 26, 0.0,False),
-            (0.2, 27, 0.0,False),
-            (0.2, 28, 0.0,False),
-            (0.2,29, 0.0,False),
-            (0.2,30, 0.0,False),
-            (0.2,31, 0.0,False)]
+        2: [(0.1, 26, 0.0,False),
+            (0.1, 27, 0.0,False),
+            (0.05, 28, 0.0,False),
+            (0.05,29, 0.0,False),
+            (0.35,30, 0.0,False),
+            (0.35,31, 0.0,False)]
     },
 #25: T pre flop, check/no info
    25: {
         #action - check
-        0: [(0.2, 26, 0.0,False),
-            (0.2, 27, 0.0,False),
-            (0.2, 28, 0.0,False),
-            (0.2,29, 0.0,False),
-            (0.2,30, 0.0,False),
-            (0.2,31, 0.0,False)
+        0: [(0.1, 26, 0.0,False),
+            (0.1, 27, 0.0,False),
+            (0.05, 28, 0.0,False),
+            (0.05,29, 0.0,False),
+            (0.35,30, 0.0,False),
+            (0.35,31, 0.0,False)
         ],
        #action -fold
         1: [(1, 24, WORST_REWARD, True)
         ],
        #action -raise
-        2: [(0.2, 26, 0.0,False),
-            (0.2, 27, 0.0,False),
-            (0.2, 28, 0.0,False),
-            (0.2,29, 0.0,False),
-            (0.2,30, 0.0,False),
-            (0.2,31, 0.0,False)]
+        2: [(0.1, 26, 0.0,False),
+            (0.1, 27, 0.0,False),
+            (0.05, 28, 0.0,False),
+            (0.05,29, 0.0,False),
+            (0.35,30, 0.0,False),
+            (0.35,31, 0.0,False)]
     },
 #26: T -T*,  flop, raise
    26: { 
@@ -906,18 +906,18 @@ P_THRESHOLD_D= {
 #32: A- pre flop any opp action -- better raise 
    32: {
         #action - check
-        0: [(0.33, 0, 0.0,False),
-            (0.33, 1, 0.0,False),
-            (0.33, 2, 0.0,False)
+        0: [(0.3, 0, 0.0,False),
+            (0.35, 1, 0.0,False),
+            (0.35, 2, 0.0,False)
             
         ],
        #action -fold
         1: [(1, 32, WORST_REWARD, True)
         ],
        #action -raise
-        2: [(0.33, 0, 0.0,False),
-            (0.33, 1, 0.0,False),
-            (0.33, 2, 0.0,False)
+        2: [(0.3, 0, 0.0,False),
+            (0.35, 1, 0.0,False),
+            (0.35, 2, 0.0,False)
             
         ]
     },
@@ -976,37 +976,37 @@ P_THRESHOLD_A= {
 # K- pre flop, raise : low best is to raise 
    3: {
         #action - check
-        0: [(0.25, 5, 0.0,False),
-            (0.25, 6, 0.0,False),
-            (0.25, 7, 0.0,False),
-            (0.25,8,0.0,False)
+        0: [(0.2, 5, 0.0,False),
+            (0.1, 6, 0.0,False),
+            (0.35, 7, 0.0,False),
+            (0.35,8,0.0,False)
         ],
        #action -fold
         1: [(1, 3, WORST_REWARD, True)
         ],
        #action -raise
-        2: [(0.25, 5, 0.0,False),
-            (0.25, 6, 0.0,False),
-            (0.25, 7, 0.0,False),
-            (0.25, 8, 0.0,False)
+        2: [(0.2, 5, 0.0,False),
+            (0.1, 6, 0.0,False),
+            (0.35, 7, 0.0,False),
+            (0.35, 8, 0.0,False)
         ]
     },
 #K pre flop, check or no info
    4: {
         #action - check
-        0: [(0.25, 5, 0.0,False),
-            (0.25, 6, 0.0,False),
-            (0.25, 7, 0.0,False),
-            (0.25,8,0.0,False)
+        0: [(0.2, 5, 0.0,False),
+            (0.1, 6, 0.0,False),
+            (0.35, 7, 0.0,False),
+            (0.35,8,0.0,False)
         ],
        #action -fold
         1: [(1, 3, WORST_REWARD, True)
         ],
        #action -raise
-        2: [(0.25, 5, 0.0,False),
-            (0.25, 6, 0.0,False),
-            (0.25, 7, 0.0,False),
-            (0.25, 8, 0.0,False)
+        2: [(0.2, 5, 0.0,False),
+            (0.1, 6, 0.0,False),
+            (0.35, 7, 0.0,False),
+            (0.35, 8, 0.0,False)
         ]
     },
 #5: K-K* flop, raise or check : we probably have the winning card, lets raise 
@@ -1076,41 +1076,41 @@ P_THRESHOLD_A= {
 #9: Q pre flop raise 
    9: {
         #action - check
-        0: [(0.2, 11, 0.0,False),
-            (0.2, 12, 0.0,False),
-            (0.2, 13, 0.0,False),
-            (0.2,14, 0.0,False),
-            (0.2,15, 0.0,False)
+        0: [(0.1, 11, 0.0,False),
+            (0.1, 12, 0.0,False),
+            (0.1, 13, 0.0,False),
+            (0.35,14, 0.0,False),
+            (0.35,15, 0.0,False)
         ],
        #action -fold
         1: [(1, 9,MED_REWARD, True)
         ],
        #action -raise
-        2: [(0.2, 11, 0.0,False),
-            (0.2, 12, 0.0,False),
-            (0.2, 13, 0.0,False),
-            (0.2,14, 0.0,False),
-            (0.2,15, 0.0,False)
+        2: [(0.1, 11, 0.0,False),
+            (0.1, 12, 0.0,False),
+            (0.1, 13, 0.0,False),
+            (0.35,14, 0.0,False),
+            (0.35,15, 0.0,False)
         ]
     },
 #10: Q pre flop check , no info
     10: {
     #action - check
-    0: [(0.2, 11, 0.0,False),
-        (0.2, 12, 0.0,False),
-        (0.2, 13, 0.0,False),
-        (0.2,14, 0.0,False),
-        (0.2,15, 0.0,False)
+    0: [(0.1, 11, 0.0,False),
+        (0.1, 12, 0.0,False),
+        (0.1, 13, 0.0,False),
+        (0.35,14, 0.0,False),
+        (0.35,15, 0.0,False)
     ],
     #action -fold
     1: [(1, 9, WORST_REWARD, True)
     ],
     #action -raise
-    2: [(0.2, 11, 0.0,False),
-        (0.2, 12, 0.0,False),
-        (0.2, 13, 0.0,False),
-        (0.2,14, 0.0,False),
-        (0.2,15, 0.0,False)
+    2: [(0.1, 11, 0.0,False),
+        (0.1, 12, 0.0,False),
+        (0.1, 13, 0.0,False),
+        (0.35,14, 0.0,False),
+        (0.35,15, 0.0,False)
     ]
 },
 #11: Q-Q* ,flop, raise 
@@ -1195,44 +1195,44 @@ P_THRESHOLD_A= {
 #16: J pre flop, raise--fold
    16: {
         #action - check
-        0: [(0.2, 18, 0.0,False),
-            (0.2, 19, 0.0,False),
-            (0.2, 20, 0.0,False),
-            (0.2,21, 0.0,False),
-            (0.2,22, 0.0,False),
-            (0.2,23, 0.0,False)
+        0: [(0.1, 18, 0.0,False),
+            (0.1, 19, 0.0,False),
+            (0.05, 20, 0.0,False),
+            (0.05,21, 0.0,False),
+            (0.35,22, 0.0,False),
+            (0.35,23, 0.0,False)
         ],
        #action -fold
         1: [(1, 16, LOW_MED_REWARD, True)
         ],
        #action -raise
-        2: [(0.2, 18, 0.0,False),
-            (0.2, 19, 0.0,False),
-            (0.2, 20, 0.0,False),
-            (0.2,21, 0.0,False),
-            (0.2,22, 0.0,False),
-            (0.2,23, 0.0,False)]
+        2: [(0.1, 18, 0.0,False),
+            (0.1, 19, 0.0,False),
+            (0.05, 20, 0.0,False),
+            (0.05,21, 0.0,False),
+            (0.35,22, 0.0,False),
+            (0.35,23, 0.0,False)]
     },
 #17: J pre flop, check - no info
    17: {
         #action - check
-        0: [(0.2, 18, 0.0,False),
-            (0.2, 19, 0.0,False),
-            (0.2, 20, 0.0,False),
-            (0.2,21, 0.0,False),
-            (0.2,22, 0.0,False),
-            (0.2,23, 0.0,False)
+        0: [(0.1, 18, 0.0,False),
+            (0.1, 19, 0.0,False),
+            (0.05, 20, 0.0,False),
+            (0.05,21, 0.0,False),
+            (0.35,22, 0.0,False),
+            (0.35,23, 0.0,False)
         ],
        #action -fold
         1: [(1, 17, LOW_MED_REWARD, True)
         ],
        #action -raise
-        2: [(0.2, 18, 0.0,False),
-            (0.2, 19, 0.0,False),
-            (0.2, 20, 0.0,False),
-            (0.2,21, 0.0,False),
-            (0.2,22, 0.0,False),
-            (0.2,23, 0.0,False)]
+        2: [(0.1, 18, 0.0,False),
+            (0.1, 19, 0.0,False),
+            (0.05, 20, 0.0,False),
+            (0.05,21, 0.0,False),
+            (0.35,22, 0.0,False),
+            (0.35,23, 0.0,False)]
     },
 
 #18:J-J*, flop, raise  --probs has sth better,still better not fold
@@ -1335,44 +1335,44 @@ P_THRESHOLD_A= {
 #24:T pre flop, raise
    24: {
         #action - check
-        0: [(0.2, 26, 0.0,False),
-            (0.2, 27, 0.0,False),
-            (0.2, 28, 0.0,False),
-            (0.2,29, 0.0,False),
-            (0.2,30, 0.0,False),
-            (0.2,31, 0.0,False)
+        0: [(0.1, 26, 0.0,False),
+            (0.1, 27, 0.0,False),
+            (0.05, 28, 0.0,False),
+            (0.05,29, 0.0,False),
+            (0.35,30, 0.0,False),
+            (0.35,31, 0.0,False)
         ],
        #action -fold
         1: [(1, 24, LOW_MED_REWARD, True)
         ],
        #action -raise
-        2: [(0.2, 26, 0.0,False),
-            (0.2, 27, 0.0,False),
-            (0.2, 28, 0.0,False),
-            (0.2,29, 0.0,False),
-            (0.2,30, 0.0,False),
-            (0.2,31, 0.0,False)]
+        2: [(0.1, 26, 0.0,False),
+            (0.1, 27, 0.0,False),
+            (0.05, 28, 0.0,False),
+            (0.05,29, 0.0,False),
+            (0.35,30, 0.0,False),
+            (0.35,31, 0.0,False)]
     },
 #25: T pre flop, check/no info
    25: {
         #action - check
-        0: [(0.2, 26, 0.0,False),
-            (0.2, 27, 0.0,False),
-            (0.2, 28, 0.0,False),
-            (0.2,29, 0.0,False),
-            (0.2,30, 0.0,False),
-            (0.2,31, 0.0,False)
+        0: [(0.1, 26, 0.0,False),
+            (0.1, 27, 0.0,False),
+            (0.05, 28, 0.0,False),
+            (0.05,29, 0.0,False),
+            (0.35,30, 0.0,False),
+            (0.35,31, 0.0,False)
         ],
        #action -fold
         1: [(1, 24, WORST_REWARD, True)
         ],
        #action -raise
-        2: [(0.2, 26, 0.0,False),
-            (0.2, 27, 0.0,False),
-            (0.2, 28, 0.0,False),
-            (0.2,29, 0.0,False),
-            (0.2,30, 0.0,False),
-            (0.2,31, 0.0,False)]
+        2: [(0.1, 26, 0.0,False),
+            (0.1, 27, 0.0,False),
+            (0.05, 28, 0.0,False),
+            (0.05,29, 0.0,False),
+            (0.35,30, 0.0,False),
+            (0.35,31, 0.0,False)]
     },
 #26: T -T*,  flop, raise
    26: { 
@@ -1473,18 +1473,18 @@ P_THRESHOLD_A= {
 #32: A- pre flop any opp action -- better raise 
    32: {
         #action - check
-        0: [(0.33, 0, 0.0,False),
-            (0.33, 1, 0.0,False),
-            (0.33, 2, 0.0,False)
+        0: [(0.3, 0, 0.0,False),
+            (0.35, 1, 0.0,False),
+            (0.35, 2, 0.0,False)
             
         ],
        #action -fold
         1: [(1, 32, WORST_REWARD, True)
         ],
        #action -raise
-        2: [(0.33, 0, 0.0,False),
-            (0.33, 1, 0.0,False),
-            (0.33, 2, 0.0,False)
+        2: [(0.3, 0, 0.0,False),
+            (0.35, 1, 0.0,False),
+            (0.35, 2, 0.0,False)
             
         ]
     },

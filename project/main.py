@@ -40,7 +40,7 @@ def play_a_game(env: Env, agent: Agent, opponent:Agent, threshold=False, t = Non
         done = False
         round = 1
         while not done: #playing one hand
-            #rememmber that state, reward an done are referring only in the agent
+            #remember that state, reward an done are referring only in the agent
             round = (round + 1 )%2
             if (not isinstance(opponent, Random_Agent)): #instance of human or threshold agent
                 opponent.set_round(round)
