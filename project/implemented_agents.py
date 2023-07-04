@@ -4,13 +4,13 @@ import utils
 
 
 class PolicyIterationAgent(Agent):
-    def __init__(self,P, epsilon = 10**(-4), gamma=.1):
+    def __init__(self,P, epsilon = 10**(-4), gamma=.9):
         self.P = P
         self.epsilon = epsilon
         self.gamma = gamma
         self.pi = None
         self.V = None
-        self.V, self.pi = self.policy_iteration()
+        self.V, self.pi = self.policy_iteration(self.gamma)
         return 
     
 
@@ -46,7 +46,7 @@ class PolicyIterationAgent(Agent):
         self.pi = new_pi
         return new_pi
     
-    def policy_iteration(self):
+    def policy_iteration(self, gamma):
         t = 0
         random_actions = np.random.choice(tuple(self.P[0].keys()), len(self.P))     # start with random actions for each state  
         self.pi = lambda s: {s:a for s, a in enumerate(random_actions)}[s]     # and define your initial policy pi_0 based on these action (remember, we are passing policies around as python "functions", hence the need for this second line)
@@ -54,7 +54,7 @@ class PolicyIterationAgent(Agent):
         while True:
             old_pi = {s: self.pi(s) for s in range(len(self.P))}  #keep the old policy to compare with new
             self.policy_evaluation()   #evaluate latest policy --> you receive its converged value function
-            self.pi = self.policy_improvement()          #get a better policy using the value function of the previous one just calculated 
+            self.pi = self.policy_improvement(gamma=gamma)          #get a better policy using the value function of the previous one just calculated 
             
             t += 1
                                        #and the value function evolution (for the GUI)

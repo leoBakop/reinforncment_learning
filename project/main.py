@@ -164,9 +164,9 @@ def testing_main():
 
 if __name__ == "__main__":
 
-    q_learning = True
-    threshold = False
-    aggressive = False
+    q_learning = False
+    threshold = True
+    aggressive = True
     train = True
     if(train):training_main(threshold = threshold, q_learning = q_learning, aggressive = aggressive)
     else: testing_main()
