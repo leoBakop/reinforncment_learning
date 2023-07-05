@@ -5,16 +5,20 @@ import utils
 
 class PolicyIterationAgent(Agent):
     def __init__(self,P, epsilon = 10**(-4), gamma=.9):
-        self.P = P
-        self.epsilon = epsilon
+        self.P = P #Transition Matrix
+        self.epsilon = epsilon #conergence criterion
         self.gamma = gamma
-        self.pi = None
-        self.V = None
-        self.V, self.pi = self.policy_iteration(self.gamma)
+        self.pi = None #initial policies
+        self.V = None #initial V
+        self.V, self.pi = self.policy_iteration(self.gamma) #converged policies and V
         return 
     
 
     def send_action(self, state, useless_1, useless_2):
+        """
+        Method that every agent inherits.
+        Is used by agent, for deciding the best action
+        """
         return  self.pi(state)
     
     def policy_evaluation(self, pi = None):
@@ -40,8 +44,6 @@ class PolicyIterationAgent(Agent):
                 for prob, next_state, reward, done in self.P[s][a]:  #evaluate the action value based on the model and Value function given (which corresponds to the previous policy that we are trying to improve) 
                     Q[s][a] += prob * (reward + gamma * self.V[next_state] * (not done))
         new_pi = lambda s: {s:a for s, a in enumerate(np.argmax(Q, axis=1))}[s]  # this basically creates the new (improved) policy by choosing at each state s the action a that has the highest Q value (based on the Q array we just calculated)
-        # lambda is a "fancy" way of creating a function without formally defining it (e.g. simply to return, as here...or to use internally in another function)
-        # you can implement this in a much simpler way, by using just a few more lines of code -- if this command is not clear, I suggest to try coding this yourself
     
         self.pi = new_pi
         return new_pi
@@ -57,7 +59,6 @@ class PolicyIterationAgent(Agent):
             self.pi = self.policy_improvement(gamma=gamma)          #get a better policy using the value function of the previous one just calculated 
             
             t += 1
-                                       #and the value function evolution (for the GUI)
         
             if old_pi == {s:self.pi(s) for s in range(len(self.P))}: # you have converged to the optimal policy if the "improved" policy is exactly the same as in the previous step
                 break
@@ -67,7 +68,12 @@ class PolicyIterationAgent(Agent):
 
 class Q_Learning_Agent(Agent):
 
-    def __init__(self, state_size, action_size, a = .2, gamma = 1.0, seed = 0, threshold = False, ante = False, Q=None, eps=1, against_human = False):
+    def __init__(self, state_size, action_size=3, a = .2, gamma = 1.0, seed = 0, Q=None, eps=1, against_human = False):
+        """ 
+        There are two ways to initialize the Q_Learning_Agent
+        a) By not given an pre-trained Q (and the goal is to create it)
+        b) By given a pre-trained Q (and the goal is to test it)
+        """
         np.random.seed(seed=seed)
         self.state_size = state_size
         self.action_size = action_size
@@ -80,18 +86,23 @@ class Q_Learning_Agent(Agent):
         self.conv = 0
         self.eps = eps
         self.disp = True
-        self.threshold = threshold
-        self.ante=ante
-        self.against_human  = against_human
+        
+        self.against_human  = against_human #means that the agent is in testing mode
 
     def train(self, tuple):
-        #and now the training section, based on the previous tuple (knowledge)
-        old_q = list([np.argmax(i) for i in self.Q])
+        """ 
+            The most basic method of the Q-Agent.
+            In this method, the training is implemented  
+            based on the previous tuple (knowledge)
+        """
+        
+        old_q = list([np.argmax(i) for i in self.Q]) #in order to check for convergance
         state, prev_action, reward, next_state,  done = tuple
-        if not prev_action is None: #it is None when the aent talks first
-            target = reward +self.gamma*np.argmax(self.Q[next_state])*(not done)
-            self.Q[state, prev_action]= (1-self.a)*self.Q[state, prev_action] + self.a*target
-
+        if not prev_action is None: #it is None when the agent talks first
+            target = reward + self.gamma*np.argmax(self.Q[next_state])*(not done) #bellman equastion
+            self.Q[state, prev_action]= (1-self.a)*self.Q[state, prev_action] + self.a*target #learn with learning rate = a
+        
+        #convergences stuff
         if(self.check_if_convergence(old_q)):self.conv += 1
         else: self.conv = 0
         if  (self.conv == 10_000):
@@ -100,6 +111,9 @@ class Q_Learning_Agent(Agent):
         
     
     def check_if_convergence(self, old_q):
+        """
+            Method that 
+        """
         new_q = list([np.argmax(i) for i in self.Q])
         for i,j in zip(old_q,new_q):
             if(i!=j):return False

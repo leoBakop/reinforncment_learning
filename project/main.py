@@ -99,10 +99,8 @@ def training_main(threshold, q_learning, aggressive):
     agent = Q_Learning_Agent(#state_size=2**10, 
                                 state_size=20 if not threshold else 33, 
                                 action_size= 3,
-                                a=.4 if threshold else .28,
+                                a=.4 ,
                                 gamma=gamma,
-                                threshold=threshold,
-                                ante= True,
                                 against_human = False) if q_learning else \
                                 PolicyIterationAgent(P=p, gamma=gamma)
     if threshold :
@@ -165,8 +163,8 @@ def testing_main():
 
 if __name__ == "__main__":
 
-    q_learning = False
-    threshold = True
+    q_learning = True
+    threshold = False
     aggressive = True
     train = True
     if(train):training_main(threshold = threshold, q_learning = q_learning, aggressive = aggressive)
