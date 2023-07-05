@@ -95,15 +95,16 @@ def training_main(threshold, q_learning, aggressive):
                 (utils.P_THRESHOLD_D if threshold and not aggressive else utils.P)
     seed = 15
     np.random.seed(seed)
+    gamma = .9
     agent = Q_Learning_Agent(#state_size=2**10, 
                                 state_size=20 if not threshold else 33, 
                                 action_size= 3,
                                 a=.4 if threshold else .28,
-                                gamma=.9,
+                                gamma=gamma,
                                 threshold=threshold,
                                 ante= True,
                                 against_human = False) if q_learning else \
-                                PolicyIterationAgent(P=p)
+                                PolicyIterationAgent(P=p, gamma=gamma)
     if threshold :
         opponent = Threshold_Agent_A() if aggressive else Threshold_Agent_D()
     else:
