@@ -169,5 +169,3 @@ if __name__ == "__main__":
     print(list([card.rank for card in g.table]))
     
 
-
-    print("end")

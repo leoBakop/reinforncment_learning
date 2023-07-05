@@ -88,12 +88,11 @@ class Env:
             #to do
             if isinstance(self.opponent, Random_Agent): enumarated_state=utils.convert_flop_state_to_num(utils.convert_pre_flop_state_to_num(self.form_state()[:5]),self.form_state())
             else: enumarated_state=utils.threshold_convert_state_to_num(self.form_state())
-            if (isinstance(next_player, Q_Learning_Agent)): #if our agent is playing
-                new_action = next_player.send_action(enumarated_state, t)
-                #next_player.train(previous_tuple)
-            else:
-                if(self.disp):print("Re-raise")
-                new_action = next_player.send_action(enumarated_state, None, None) # a method that every agent should implememnt, taking a state, returning an action
+
+            if(self.disp):print("Re-raise was performed")
+            new_action = next_player.send_action(enumarated_state)
+            
+
             #done, a= self.game.step(new_action, np.abs(player-1))
             return self.step(new_action, np.abs(player - 1), t, previous_tuple, threshold=threshold, agent=agent)
         

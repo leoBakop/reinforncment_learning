@@ -1,6 +1,5 @@
 from agent import Agent
 import numpy as np
-import utils
 
 
 class PolicyIterationAgent(Agent):
@@ -14,7 +13,7 @@ class PolicyIterationAgent(Agent):
         return 
     
 
-    def send_action(self, state, useless_1, useless_2):
+    def send_action(self, state):
         """
         Method that every agent inherits.
         Is used by agent, for deciding the best action
@@ -31,7 +30,7 @@ class PolicyIterationAgent(Agent):
                 for prob, next_state, reward, done in self.P[s][self.pi(s)]:  # calculate one Bellman step --> i.e., sum over all probabilities of transitions and reward for that state, the action suggested by the (fixed) policy, the reward earned (dictated by the model), and the cost-to-go from the next state (which is also decided by the model)
                     V[s] += prob * (reward + self.gamma * prev_V[next_state] * (not done))
             if np.max(np.abs(prev_V - V)) < self.epsilon: #check if the new V estimate is close enough to the previous one; 
-                break # if yes, finish loop
+                break 
             prev_V = V.copy() #freeze the new values (to be used as the next V(s'))
 
         self.V = V    
@@ -112,7 +111,7 @@ class Q_Learning_Agent(Agent):
     
     def check_if_convergence(self, old_q):
         """
-            Method that 
+            Method that compares two instances of policies
         """
         new_q = list([np.argmax(i) for i in self.Q])
         for i,j in zip(old_q,new_q):
@@ -120,11 +119,18 @@ class Q_Learning_Agent(Agent):
         return True    
         
 
-    def send_action(self, state, t):
+    def send_action(self, state):
+        """
+        Method that every agent inherits.
+        Is used by agent, for deciding the best action.
+        In this case, an epsilon greedy algorithm is used,
+        in order to achieve exploration and exploitation
+        """
+
+        self.eps = max(0.9999749*self.eps, .01) #was choosen experimentally, in oder to achieve .01 in 26% of 
+        #the horizon in episodes against threshold(s) opponent(s)
         
-       
-        self.eps = max(0.9999749*self.eps, .01)
-        if self.against_human: #against human
+        if self.against_human: #In order of pretained 
             self.eps = .001
         
         
@@ -133,12 +139,15 @@ class Q_Learning_Agent(Agent):
             print("eps = .01------------")
             self.disp = False
         p = np.random.rand()
+
         #select action
         if p < self.eps: #make a random move
             action = np.random.choice([0,1,2])
         else : #act as q suggests
             action = np.argmax(self.Q[state,:])
 
+        #previous bug. 
+        #It was fixed (we can see that nothing is pinted) but wasn't deleted for safety reasons
         if ((not (action in [0,1,2])) and ( action is not None)):
             print("bug needs to be fixed")
             return np.random.choice([0,1,2])
@@ -146,26 +155,35 @@ class Q_Learning_Agent(Agent):
         
     def to_str(self):
         return "Q_Learning_Agent"
-    def reduce_a(self):
-        self.a = min(0.99998*self.a, 0.12)
     
+    def reduce_a(self):
+        """ reducing the learning rate, as it is mentioned in report"""
+        self.a = min(0.99998*self.a, 0.12)
+
+
 class Random_Agent(Agent):
     def __init__(self, seed = 0):
         np.random.seed(seed = seed)
-    def send_action(self, state, useless_1, useless_2):
+
+    def send_action(self, state):
+        """ the extra arguments, are not used
+            They are completed just for constistency 
+        """
         return np.random.randint(0,3)
     
 
 
 class Threshold_Agent_D(Agent):
-  
+    """ 
+    This is the tight opponent
+    """
     def set_hand(self, hand):
         self.hand = hand
     def set_table(self, table):
         self.table = table
     def set_round(self, round):
         self.round = round   
-    def send_action(self, state, useless_1, useless_2):
+    def send_action(self, state):
         
         cards_and_actions_round_0 = {
             "T": 1,
@@ -175,15 +193,21 @@ class Threshold_Agent_D(Agent):
             "A": 2
         }
 
+        #in preflop just act based on the rank of your hand
         if self.round == 0:
             return cards_and_actions_round_0.get(self.hand.rank, 0) #by default check
+        #in flop, action is based on the combination 
         for card in self.table:
             if card.rank == self.hand.rank: return 2
+        #if no combination in the flop, fold
         return 1
     
     
 class Threshold_Agent_A(Threshold_Agent_D):
-    def send_action(self, state, useless_1, useless_2):
+    """ 
+    This is the loose opponent
+    """
+    def send_action(self, state):
         
         cards_and_actions_round_0 = {
             "T": 0,
@@ -192,15 +216,21 @@ class Threshold_Agent_A(Threshold_Agent_D):
             "K":2,
             "A": 2
         }
-
+        #in preflop just act based on the rank of your hand
         if self.round == 0:
             return cards_and_actions_round_0.get(self.hand.rank, 0) #by default check
+        #in flop, action is based on the combination 
         for card in self.table:
             if card.rank == self.hand.rank: return 2
+        #if no combination in the flop, check
         return 0
 
 class Human_Agent(Agent):
-
+    """ 
+    Agent for testing purposes.
+    This agent, implements the inteface between
+    the python code and the tester
+    """
 
     def __init__(self, action_size, threshold = False, ante = False):
         self.action_size = action_size
@@ -224,7 +254,7 @@ class Human_Agent(Agent):
             print(f"The table has :{self.table[0].rank} , {self.table[1].rank}")
         print(f"We are playing round number {self.round} of the game")
        
-    def send_action(self, state, useless_1, useless_2):
+    def send_action(self, state):
         # Implement the logic to receive the action from the human player
         # Return the selected action
         self.interface_display()
