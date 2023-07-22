@@ -110,7 +110,7 @@ def training_main(threshold, q_learning, aggressive):
         opponent = Random_Agent(seed = seed) 
         aggressive = False #just for constistency in the csv data
 
-    horizon = 80_000 if not q_learning else 80_000
+    horizon = 80_000
     
     env = Env(agent, opponent, number_of_cards=5, seed=np.random.randint(low=1, high = horizon))
     r = np.zeros(horizon)
@@ -128,13 +128,13 @@ def training_main(threshold, q_learning, aggressive):
     #saving the policy
     if not q_learning:
         decisions = list([agent.pi(i) for i in range(33 if threshold else 20)])
-        np.savetxt(f"./data/q_learning_{ q_learning}_threshold_{threshold}_aggressive_{aggressive}.csv", decisions)
+        np.savetxt(f"./TabularQLearningAgent_IncludingEnvironment/data/q_learning_{ q_learning}_threshold_{threshold}_aggressive_{aggressive}.csv", decisions)
     else:
         decisions = list([np.argmax(agent.Q[i,:]) for i in range(33 if threshold else 20)])
-        np.savetxt(f"./data/q_learning_{ q_learning}_threshold_{threshold}_aggressive_{aggressive}.csv", decisions)
-        np.savetxt("./data/q_agent.csv", agent.Q, delimiter = ',')
+        np.savetxt(f"./TabularQLearningAgent_IncludingEnvironment/data/q_learning_{ q_learning}_threshold_{threshold}_aggressive_{aggressive}.csv", decisions)
+        np.savetxt("./TabularQLearningAgent_IncludingEnvironment/data/q_agent.csv", agent.Q, delimiter = ',')
     #saving the reward in order to plot it
-    np.savetxt(f"./data/rewards/q_learning_{ q_learning}_threshold_{threshold}_aggressive_{aggressive}.csv", r)
+    np.savetxt(f"./TabularQLearningAgent_IncludingEnvironment/data/rewards/q_learning_{ q_learning}_threshold_{threshold}_aggressive_{aggressive}.csv", r)
     
     #kind of debugging plots
     plt.figure(1)
@@ -144,7 +144,7 @@ def training_main(threshold, q_learning, aggressive):
     plt.plot(np.arange(1,horizon+1),r, label="Cumulative Reward")   
     plt.grid()
     plt.legend()
-    plt.savefig(f'images/q_learning_{ q_learning}_threshold_{threshold}_aggressive_{aggressive}.jpg')
+    plt.savefig(f'./TabularQLearningAgent_IncludingEnvironment/images/q_learning_{ q_learning}_threshold_{threshold}_aggressive_{aggressive}.jpg')
 
     plt.show()
 
@@ -155,7 +155,7 @@ def testing_main():
 
     horizon = 2
     #loading the pre-trained agent
-    q = np.loadtxt("./data/q_agent.csv", delimiter=",",dtype = float)
+    q = np.loadtxt("./TabularQLearningAgent_IncludingEnvironment/data/q_agent.csv", delimiter=",",dtype = float)
     agent = Q_Learning_Agent(state_size = 33, action_size = 2, Q = q, against_human=True )
 
     opponent = Human_Agent(action_size=2)
@@ -173,9 +173,9 @@ def testing_main():
 
 if __name__ == "__main__":
 
-    q_learning = False #Use a q-learning agent or not
-    threshold = False #Use a threshold or a random opponent 
-    aggressive = False#in case of threshold, use aggressive or defensive opponent
+    q_learning = True #Use a q-learning agent or not
+    threshold = True #Use a threshold or a random opponent 
+    aggressive = True#in case of threshold, use aggressive or defensive opponent
     train = True 
     if(train):training_main(threshold = threshold, q_learning = q_learning, aggressive = aggressive)
     else: testing_main()
