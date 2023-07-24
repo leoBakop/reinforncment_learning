@@ -51,5 +51,6 @@ if __name__ == '__main__':
 
             # Reorganaize the data to be state, action, reward, next_state, done
             trajectories = reorganize(trajectories, payoffs)
+            agent.agents_step(trajectories[0])
 
     print("end of the code")       
