@@ -19,7 +19,8 @@ class Agent():
                     horizon = 1_000_000,
                     lr = .001,
                     decrease = .99,
-                    goal = .02
+                    goal = .02,
+                    update_every = 10
                 ):
         self.device = device
 
@@ -40,6 +41,8 @@ class Agent():
         self.criterion = nn.MSELoss()
         self.optimizer = optim.Adam(self.model.parameters(), lr=self.lr)
         self.use_raw = False #just for the env, False because the agent is not a human
+        self.update_every = update_every
+        self.counter = 0
         #epsilon greedy part
         self.eps = 1
         self.decrease = decrease
@@ -49,13 +52,15 @@ class Agent():
         self.replay_buffer.add(tuples)
 
 
-    def predict(self,state, network):
+    def predict(self,state, network, model=False):
         
         ''' Predict the masked Q-values
 
         Args:
             state (numpy.array): current state,
-            the network that is going to use
+            the network that is going to use,
+            model (boolean): defines if the model or the model network is used (in case of training) in order to
+            use or not grand, 
 
         Returns:
             q_values (numpy.array): a 1-d array where each entry represents a Q value and sets -inf to the illegal 
@@ -72,11 +77,13 @@ class Agent():
                 new_state_legal_action.append(list(s['legal_actions'].keys()))
             input = torch.Tensor(np.array(new_state_obs)).to(self.device)
         #taking all the q-values
-        with torch.no_grad():
-            q_values = network(input)[0].cpu().numpy() if not training else network(input).cpu().numpy()
+        if not model:
+            with torch.no_grad():
+                q_values = network(input)[0].cpu().numpy() if not training else network(input).cpu().numpy()
+        else:
+            q_values = network(input)[0].cpu().detach().numpy() if not training else network(input).cpu().detach().numpy()
         network.train()
         #mask the illegal actions
-        rows = 1 
         masked_q_values = -np.inf * np.ones(self.num_actions, dtype=float) if not training else -np.inf*np.ones((self.batch_size, self.num_actions), dtype = float)
         #I want the keys not the values and I have implement the values
         legal_actions = list(state['legal_actions'].keys()) if len(state) == 5 else list(new_state_legal_action)
@@ -131,6 +138,7 @@ class Agent():
         and train the agent. Basically the method must be called in every timestep
         of the training loop
         """
+        self.counter += 1
         #stores new experience in replay buffer
         self.push(tuples)
         if len(self.replay_buffer) < 2*self.batch_size: return 
@@ -139,16 +147,43 @@ class Agent():
         experience = self.replay_buffer.sample()
         #now it is time for training
         self.train(experience)
+        if(self.counter % self.update_every == 0): 
+            self.update_target()
+
 
     def update_eps(self):
         if self.eps > self.goal:
             self.eps = max(self.eps*self.decrease, self.goal)
         if (self.eps == self.goal):
-            print("----------training was ended--------------")
+            print("----------exploration was ended--------------")
             self.eps = self.goal*self.decrease
 
     def train(self,experience):
+        self.model.train()
+        self.optimizer.zero_grad()
+
         state, action, reward, next_state, done = experience
+
+        #calulating the Q(s,a) using the model network 
+        qs = self.predict(state = state, network = self.model, model = True)
+        qs = torch.tensor([q[a] for q,a in zip(qs, action)], requires_grad=True, dtype = torch.double)
+        
+        #calulating the max(Q(s',a'))
         next_qs =self.predict(state = next_state, network=self.target_model)
-        next_qs = np.argmax(next_qs, axis=1)
-        #works fine until now      
+        next_qs = np.max(next_qs, axis=1)
+        #calulating the target
+        done = list(map(float, done))
+
+        y = torch.tensor(reward + self.gamma*next_qs *(done), dtype = torch.double)
+
+        #It's time for training
+        loss = self.criterion(y,qs)
+        loss.backward()
+        self.optimizer.step()
+        self.model.eval()
+
+        return
+
+    def update_target(self):
+        self.target_model.load_state_dict(self.model.state_dict())
+   
