@@ -20,26 +20,26 @@ from rlcard.utils import (
 
 
 if __name__ == '__main__':
-    seed = 0
+    seed = 42
     env = rlcard.make("limit-holdem", config={'seed': seed,})
+    set_seed(seed)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    horizon = 50_000
-    MAX_REWARD = 11.5 #just an approximation for the highest reward, in order to normillize the rewards
-    #creating two random agents
+    horizon = 7_000
+    num_eval_games = 2000
     
     agent = Agent(
-        input_size= 72,
-        hidden_size1= 100,
-        hidden_size2=100,
+        input_size= env.state_shape[0][0],
+        hidden_size1= 128,
+        hidden_size2=128,
         num_actions=env.num_actions,
         device=device,
-        batch_size=256,
-        buffer_size=100_000,
-        gamma = .98,
-        lr = .001,
-        decrease= .9999,
+        batch_size=64,
+        buffer_size=20_000,
+        gamma = .99,
+        lr = .00005,
+        decrease= .9998,
         goal = .01,
-        update_every= 5
+        update_every= 1000
 
     )
     agents=[agent]
@@ -48,21 +48,35 @@ if __name__ == '__main__':
     env.set_agents(agents)
 
     rewards = np.zeros(horizon)
-
-    for episode in tqdm(range(horizon), desc="Processing items", unit="item"):
+    with Logger("DQN_Agent/experiments/") as logger:
+        for episode in range(horizon):
 
 
             # Generate data from the environment
             trajectories, payoffs = env.run(is_training=True)
-            payoffs /= MAX_REWARD
             # Reorganaize the data to be state, action, reward, next_state, done
             trajectories = reorganize(trajectories, payoffs)
             agent.agents_step(trajectories[0])
             #logistics
             lines = trajectories[0][:][:]
             r=list([i[2] for i in lines])
-            avg = np.average(r)
-            rewards[episode] = 0 if np.isnan(avg) else avg
+            avg = np.mean(r) if r else 0
+            rewards[episode] = avg
+
+            # Evaluate the performance. Play with random agents.
+            if episode % 100 == 0:
+                logger.log_performance(
+                    episode,
+                    tournament(
+                        env,
+                        num_eval_games,
+                    )[0]
+                )
+        # Get the paths
+        csv_path, fig_path = logger.csv_path, logger.fig_path
+
+    # Plot the learning curve
+    plot_curve(csv_path, fig_path, 'DQN')
 
     plt.figure(1)
     plt.title(f" Agent's Reward ") 
