@@ -208,7 +208,7 @@ class Agent():
 
         #calulating the Q(s,a) using the model network
         state = list([s['obs'] for s in state])
-        state = torch.Tensor(state).to(self.device)
+        state = torch.Tensor(np.array(state)).to(self.device)
         qs = self.model(state)
         Q = torch.gather(qs, dim=-1, index=action.unsqueeze(-1)).squeeze(-1)
 

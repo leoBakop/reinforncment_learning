@@ -10,12 +10,9 @@ import matplotlib.pyplot as plt
 
 
 from rlcard.utils import (
-    get_device,
     set_seed,
     tournament,
-    reorganize,
-    Logger,
-    plot_curve,
+    reorganize
 )
 
 
@@ -24,8 +21,10 @@ if __name__ == '__main__':
     env = rlcard.make("limit-holdem", config={'seed': seed,})
     set_seed(seed)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    horizon = 7_000
-    num_eval_games = 2000
+    horizon = 500_000
+    num_eval_games = 1_000
+    evaluate_every = 1_000
+    index = 0
     
     agent = Agent(
         input_size= env.state_shape[0][0],
@@ -33,11 +32,11 @@ if __name__ == '__main__':
         hidden_size2=128,
         num_actions=env.num_actions,
         device=device,
-        batch_size=64,
+        batch_size=32,
         buffer_size=20_000,
         gamma = .99,
-        lr = .00005,
-        decrease= .9998,
+        lr = .00004,
+        decrease= .999999,#.99912,
         goal = .01,
         update_every= 1000
 
@@ -47,42 +46,32 @@ if __name__ == '__main__':
         agents.append(RandomAgent(num_actions=env.num_actions))
     env.set_agents(agents)
 
-    rewards = np.zeros(horizon)
-    with Logger("DQN_Agent/experiments/") as logger:
-        for episode in range(horizon):
+    rewards = np.zeros(int(horizon/evaluate_every)+1)
+    for episode in tqdm(range(horizon), desc="Processing items", unit="item"):
 
 
-            # Generate data from the environment
-            trajectories, payoffs = env.run(is_training=True)
-            # Reorganaize the data to be state, action, reward, next_state, done
-            trajectories = reorganize(trajectories, payoffs)
-            agent.agents_step(trajectories[0])
-            #logistics
-            lines = trajectories[0][:][:]
-            r=list([i[2] for i in lines])
-            avg = np.mean(r) if r else 0
-            rewards[episode] = avg
+        # Generate data from the environment
+        trajectories, payoffs = env.run(is_training=True)
+        # Reorganaize the data to be state, action, reward, next_state, done
+        trajectories = reorganize(trajectories, payoffs)
+        agent.agents_step(trajectories[0])
 
-            # Evaluate the performance. Play with random agents.
-            if episode % 100 == 0:
-                logger.log_performance(
-                    episode,
-                    tournament(
+        #logistics/evaluation on clear data
+        if episode%evaluate_every == 0:
+            rewards[index] = tournament(
                         env,
                         num_eval_games,
                     )[0]
-                )
-        # Get the paths
-        csv_path, fig_path = logger.csv_path, logger.fig_path
+            index+=1
 
-    # Plot the learning curve
-    plot_curve(csv_path, fig_path, 'DQN')
+    print(f"the buffer size at the end is {len(agent.replay_buffer)}")
+
 
     plt.figure(1)
     plt.title(f" Agent's Reward ") 
     plt.xlabel("Round T") 
     plt.ylabel("Average Score") 
-    plt.plot(np.arange(1,horizon+1),rewards, label="Average reward per episode")   
+    plt.plot(np.linspace(0, horizon, int(horizon/evaluate_every)+1),rewards, label="Average reward per episode")   
     plt.grid()
     plt.legend()
     plt.show()
