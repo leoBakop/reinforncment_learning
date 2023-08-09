@@ -1,5 +1,6 @@
 from collections import deque
 import random
+import numpy as np
 
 class ReplayBuffer():
 
@@ -27,3 +28,53 @@ class ReplayBuffer():
 
     def __len__(self):
         return len(self.memory)   
+    
+class PriorizedExperienceReplay():
+    def __init__(self, batch_size, buffer_size, device, alpha, beta):
+
+        self.device = device
+        self.batch_size = batch_size
+        self.buffer_size = buffer_size
+        self.memory = deque(maxlen=self.buffer_size)
+        self.priorities = np.zeros(buffer_size, dtype = np.float32)
+        self.index = 0
+        self.full = False
+        self.alpha = alpha
+        self.beta = beta
+    
+    def add(self, tuple):
+        for t in tuple:
+            self.memory.append(t)
+            #The new tuple must be selected at least the first time
+            self.priorities[self.index] = 1 if not self.full and self.index == 0 \
+                                            else self.priorities.max()
+            self.index = (self.index + 1) % self.buffer_size
+            self.full = len(self.memory) == self.buffer_size
+
+    def sample(self):
+        if self.full:
+            prios = self.priorities
+        else:
+            prios = self.priorities[:self.index]
+            
+        # calc P = p^a/sum(p^a)
+        probs  = prios ** self.alpha
+        P = probs/probs.sum()
+        
+        #gets the indices depending on the probability p
+        indices = np.random.choice(len(self.memory), self.batch_size, p=P) 
+        samples = [self.memory[idx] for idx in indices]
+        
+        
+                
+        #Compute importance-sampling weight
+        weights  = (len(self.memory) * P[indices]) ** (-self.beta)
+        # normalize weights
+        weights /= weights.max() 
+        weights  = np.array(weights, dtype=np.float32) 
+        
+        states, actions, rewards, next_states, dones = zip(*samples) 
+        return np.concatenate(states), actions, rewards, np.concatenate(next_states), dones, indices, weights
+    
+    def __len__(self):
+        return len(self.memory)

@@ -70,6 +70,7 @@ class Agent():
         '''
         training = len(state) != 5 
         network.eval()
+        #we should remember that state['obs'] is the 72 (or more in case of an extended environment) vector
         if not training: #in case that there is just one tuple
             input = torch.Tensor(np.expand_dims(state['obs'], 0)).to(self.device)
         else:
@@ -80,8 +81,8 @@ class Agent():
                 new_state_legal_action.append(list(s['legal_actions'].keys()))
             input = torch.Tensor(np.array(new_state_obs)).to(self.device)
         #taking all the q-values
-        
-        q_values = network(input)[0].cpu().detach().numpy() if not training else network(input).cpu().detach().numpy()
+        with torch.no_grad():
+            q_values = network(input)[0].cpu().detach().numpy() if not training else network(input).cpu().detach().numpy()
         
         network.train()
         #mask the illegal actions
@@ -90,40 +91,12 @@ class Agent():
         legal_actions = list(state['legal_actions'].keys()) if len(state) == 5 else list(new_state_legal_action)
         if training:
             for i,(m,q) in enumerate(zip(masked_q_values, q_values)):
-                m[legal_actions[i]] = q[legal_actions[i]]
+                m[legal_actions[i]] = q[legal_actions[i]] #replace the -infinity with the tru value when an action is legal
         else:
             masked_q_values[legal_actions] = q_values[legal_actions]
 
         return masked_q_values
     
-    def grad_predict(self,state, network):
-        """ 
-        method similar to self.predict(), Main (and only)
-        difference is that calculates and the grad of the q_values,
-        in order to perform the optimazation
-        """
-        network.train()
-        new_state_obs = []
-        new_state_legal_action = []
-        for s in state:
-            new_state_obs.append(s['obs'])
-            new_state_legal_action.append(list(s['legal_actions'].keys()))
-        input = torch.Tensor(np.array(new_state_obs)).to(self.device)
-        #taking all the q-values
-        
-        q_values =  network(input).cpu().detach().numpy()
-        
-        #mask the illegal actions
-        masked_q_values = -np.inf*np.ones((self.batch_size, self.num_actions), dtype = float)
-        #I want the keys not the values and I have implement the values
-        legal_actions = list(state['legal_actions'].keys()) if len(state) == 5 else list(new_state_legal_action)
-        
-        for i,(m,q) in enumerate(zip(masked_q_values, q_values)):
-            m[legal_actions[i]] = q[legal_actions[i]]
-        network.eval()
-        return masked_q_values
-        
-
     def eval_step(self,state):
         """ 
         method required from the rl-card environment.
@@ -137,13 +110,13 @@ class Agent():
         info = {}
         info['values'] = {state['raw_legal_actions'][i]: float(qs[list(state['legal_actions'].keys())[i]]) for i in range(len(state['legal_actions']))}
 
-        return action, info
+        return action, None
 
     def step(self, state):
         """ 
         method required from the rl-card environment.
         This method is called in env.run(is_training = True) 
-        and returns a noisy action.    
+        and returns an action, selected by eps-greedy.    
         """
         self.update_eps()
         p = random.random()
@@ -190,27 +163,32 @@ class Agent():
         state, action, reward, next_state, done = experience
         action = torch.tensor(action).to(self.device)
         legal_actions_batch = list([ns['legal_actions'] for ns in next_state])
+
         #calulating the max(Q(s',a'))
-        next_qs =self.no_grad_predict(state = next_state, network=self.target_model)
+        next_qs = self.no_grad_predict(state = next_state, network = self.target_model)
+ 
         legal_actions = []
         for b in range(self.batch_size):
             legal_actions.extend([i + b * self.num_actions for i in legal_actions_batch[b]])
+
+        #masking the illegal moves for Q(s',a')
         masked_q_values = -np.inf * np.ones(self.num_actions * self.batch_size, dtype=float)
         masked_q_values[legal_actions] = next_qs.flatten()[legal_actions]
         masked_q_values = masked_q_values.reshape((self.batch_size, self.num_actions))
+        #calculating the best action based in the Q(s', a')
         best_actions = np.argmax(masked_q_values, axis=1)
-
-        q_values_next_target = self.no_grad_predict(next_state, network = self.target_model)
+        
         #calulating the target
         done = list(map(float, done))
-        y = reward + self.gamma* q_values_next_target[np.arange(self.batch_size), best_actions]*done
+        ones= np.ones_like(done)
+        y = reward + self.gamma* next_qs[np.arange(self.batch_size), best_actions]*(ones-done)
         y = torch.tensor(y, dtype = torch.float32).to(self.device)
-
+        #so y = rewards + gamma* max(Q(s',a')) * done
         #calulating the Q(s,a) using the model network
         state = list([s['obs'] for s in state])
         state = torch.Tensor(np.array(state)).to(self.device)
-        qs = self.model(state)
-        Q = torch.gather(qs, dim=-1, index=action.unsqueeze(-1)).squeeze(-1)
+        qs = self.model(state) #calulating the Q(s,a) for every a
+        Q = torch.gather(qs, dim=-1, index=action.unsqueeze(-1)).squeeze(-1) #filtering the selected a
 
 
         #It's time for training
