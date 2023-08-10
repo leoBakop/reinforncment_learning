@@ -21,10 +21,11 @@ if __name__ == '__main__':
     set_seed(seed)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    horizon = 50_000
+    horizon = 1_000_000
     num_eval_games = 2_000 #how many hands will be played in every tournament
     evaluate_every = 1_500
     index = 0
+    per = True
     
     agent = Agent(
         input_size= env.state_shape[0][0],
@@ -33,12 +34,13 @@ if __name__ == '__main__':
         num_actions=env.num_actions,
         device=device,
         batch_size=32,
-        buffer_size=20_000,
+        buffer_size=20_000 if not per else 100_000,
         gamma = .99,
         lr = .00003,
-        decrease= .99989,#.999999
-        goal = .01,
-        update_every= 1000
+        decrease= .999899,#.999999
+        goal = .1,
+        update_every= 1000,
+        per = per
     )
 
     agents=[agent]

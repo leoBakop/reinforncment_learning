@@ -4,7 +4,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from network import DQN_Network
-from replay_buffer import ReplayBuffer
+from replay_buffer import ReplayBuffer, PriorizedExperienceReplay
 
 class Agent():
     def __init__(   self,
@@ -20,7 +20,10 @@ class Agent():
                     lr = .001,
                     decrease = .99,
                     goal = .02,
-                    update_every = 10
+                    update_every = 10,
+                    per = False,
+                    a = 0,
+                    b = 0
                 ):
         self.device = device
 
@@ -34,7 +37,15 @@ class Agent():
         #memory staffs
         self.batch_size = batch_size
         self.buffer_size = buffer_size
-        self.replay_buffer = ReplayBuffer(batch_size= self.batch_size,buffer_size= self.buffer_size,device= self.device)
+        self.per = per
+        if not per:
+            self.replay_buffer = ReplayBuffer(batch_size= self.batch_size,buffer_size= self.buffer_size,device= self.device)
+        else:
+            self.a = a
+            self.b = b
+            self.offset = .05
+            self.replay_buffer = PriorizedExperienceReplay(batch_size= self.batch_size,buffer_size= self.buffer_size,device= self.device, alpha = a, beta = b)
+            
 
         #miscellaneous
         self.gamma = gamma
@@ -143,8 +154,10 @@ class Agent():
 
         #enough experience was stored, so I can sample a minibatch
         experience = self.replay_buffer.sample()
+        self.set_per_values()
         #now it is time for training
-        self.train(experience)
+        if not self.per:self.train(experience)
+        else: self.train_per(experience)
         
 
 
@@ -152,8 +165,58 @@ class Agent():
         if self.eps > self.goal:
             self.eps = max(self.eps*self.decrease, self.goal)
         if (self.eps == self.goal):
-            print("----------exploration was ended--------------")
+            print("\n----------exploration was ended--------------")
             self.eps = self.goal*self.decrease
+            self.optimizer.param_groups[0]['lr'] = self.lr*0.1
+
+    def train_per(self,experience):
+        self.model.train()
+        self.optimizer.zero_grad()
+        state, action, reward, next_state, done, idx, weights = experience
+        action = torch.tensor(action).to(self.device)
+        legal_actions_batch = list([ns['legal_actions'] for ns in next_state])
+
+        #calulating the max(Q(s',a'))
+        next_qs = self.no_grad_predict(state = next_state, network = self.target_model)
+ 
+        legal_actions = []
+        for b in range(self.batch_size):
+            legal_actions.extend([i + b * self.num_actions for i in legal_actions_batch[b]])
+
+        #masking the illegal moves for Q(s',a')
+        masked_q_values = -np.inf * np.ones(self.num_actions * self.batch_size, dtype=float)
+        masked_q_values[legal_actions] = next_qs.flatten()[legal_actions]
+        masked_q_values = masked_q_values.reshape((self.batch_size, self.num_actions))
+        #calculating the best action based in the Q(s', a')
+        best_actions = np.argmax(masked_q_values, axis=1)
+        
+        #calulating the target
+        done = list(map(float, done))
+        ones= np.ones_like(done)
+        y = reward + self.gamma* next_qs[np.arange(self.batch_size), best_actions]*(ones-done)
+        y = torch.tensor(y, dtype = torch.float32).to(self.device)
+        #so y = rewards + gamma* max(Q(s',a')) * done
+        #calulating the Q(s,a) using the model network
+        state = list([s['obs'] for s in state])
+        state = torch.Tensor(np.array(state)).to(self.device)
+        qs = self.model(state) #calulating the Q(s,a) for every a
+        Q = torch.gather(qs, dim=-1, index=action.unsqueeze(-1)).squeeze(-1) #filtering the selected a
+
+
+        #It's time for training
+        loss = self.criterion(Q,y)
+        loss.backward()
+        self.optimizer.step()
+        self.soft_update()
+        self.model.eval()
+
+        #updating the propabillities
+        td_error =  Q - y
+        difference = td_error + self.offset
+        self.replay_buffer.update_priorities(idx, abs(difference))
+        
+        return
+
 
     def train(self,experience):
 
@@ -198,6 +261,8 @@ class Agent():
         self.soft_update()
         self.model.eval()
 
+       
+
         return
 
     def soft_update(self):
@@ -206,3 +271,8 @@ class Agent():
             target_param.data.copy_(self.TAU*local_param.data + (1.0-self.TAU)*target_param.data)
 
    
+    def set_per_values(self):
+        if not self.per: return
+        self.replay_buffer.set_alpha(1-self.eps)
+        self.replay_buffer.set_beta(1-self.eps)
+    

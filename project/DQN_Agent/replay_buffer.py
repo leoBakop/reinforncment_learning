@@ -63,7 +63,7 @@ class PriorizedExperienceReplay():
         
         #gets the indices depending on the probability p
         indices = np.random.choice(len(self.memory), self.batch_size, p=P) 
-        samples = [self.memory[idx] for idx in indices]
+        sampled_elements = [self.memory[idx] for idx in indices]
         
         
                 
@@ -73,8 +73,23 @@ class PriorizedExperienceReplay():
         weights /= weights.max() 
         weights  = np.array(weights, dtype=np.float32) 
         
-        states, actions, rewards, next_states, dones = zip(*samples) 
-        return np.concatenate(states), actions, rewards, np.concatenate(next_states), dones, indices, weights
+        state = list([s[0] for s in sampled_elements])
+        action = list([s[1] for s in sampled_elements])
+        reward = list([s[2] for s in sampled_elements])
+        next_state = list([s[3] for s in sampled_elements])
+        done = list([s[4] for s in sampled_elements])
+
+        return state, action, reward, next_state, done, indices, weights
     
     def __len__(self):
         return len(self.memory)
+    
+    def update_priorities(self, batch_indices, batch_priorities):
+        for idx, prio in zip(batch_indices, batch_priorities):
+            self.priorities[idx] = prio 
+
+    def set_alpha(self, alpha):
+        self.alpha = alpha
+
+    def set_beta(self, beta):
+        self.beta = beta
