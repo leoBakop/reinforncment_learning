@@ -58,9 +58,12 @@ class Agent():
         self.counter = 0
         self.TAU = .005
         #epsilon greedy part
-        self.eps = 1
+        self.eps = 1.0
         self.decrease = decrease
         self.goal = goal
+        self.dt = .001
+        self.epsilon_values = np.linspace(1.0, goal+self.dt, self.decrease)
+        self.index = 0
     
     def push(self, tuples):
         self.replay_buffer.add(tuples)
@@ -116,11 +119,7 @@ class Agent():
         """
         qs = self.no_grad_predict(state, network = self.model)
         action = np.argmax(qs)
-
-        #code from rlcards dqn in order to send the best legal action
-        info = {}
-        info['values'] = {state['raw_legal_actions'][i]: float(qs[list(state['legal_actions'].keys())[i]]) for i in range(len(state['legal_actions']))}
-
+        
         return action, None
 
     def step(self, state):
@@ -162,11 +161,13 @@ class Agent():
 
 
     def update_eps(self):
-        if self.eps > self.goal:
-            self.eps = max(self.eps*self.decrease, self.goal)
-        if (self.eps == self.goal):
+        if self.eps > self.goal+self.dt:
+            self.index +=  1
+            self.eps = self.epsilon_values[self.index]
+
+        if (self.eps == self.goal + self.dt):
             print("\n----------exploration was ended--------------")
-            self.eps = self.goal*self.decrease
+            self.eps = self.goal - self.dt
             self.optimizer.param_groups[0]['lr'] = self.lr*0.1
 
     def train_per(self,experience):
