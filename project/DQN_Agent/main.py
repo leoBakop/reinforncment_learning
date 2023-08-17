@@ -26,6 +26,7 @@ if __name__ == '__main__':
     evaluate_every = 100_000
     index = 0
     per = True
+    threshold = False
     
     agent = Agent(
         input_size= env.state_shape[0][0],
@@ -45,8 +46,7 @@ if __name__ == '__main__':
 
     agents=[agent]
     for _ in range(1, env.num_players):
-        #agents.append(RandomAgent(num_actions=env.num_actions))
-        agents.append(Threshold_Agent())
+        agents.append(Threshold_Agent() if threshold else RandomAgent(num_actions=env.num_actions))
     env.set_agents(agents)
 
     rewards = np.zeros(int(horizon/evaluate_every))
@@ -74,5 +74,5 @@ if __name__ == '__main__':
     plt.plot(np.linspace(0, horizon, int(horizon/evaluate_every)),rewards, label="Average reward per episode")   
     plt.grid()
     plt.legend()
-    plt.savefig("./DQN_Agent/")
+    plt.savefig(f"./DQN_Agent/threshold_{threshold}_per_{per}")
     plt.show()
