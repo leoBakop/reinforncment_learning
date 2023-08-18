@@ -24,8 +24,8 @@ action_hierarchy = {"raise":1, "call":0, "check":3, "fold":2}
 
 def get_action(legal_moves, desired_move):
     """
-        method that get an enumerated desired action and returns the
-        nearest (based on poker criteria and the legal moves).
+        method that gets the -enumerated- desired action and returns the
+        closest one(based on poker criteria and the so-called'legal' moves).
         returns 2 (fold) in case of an error
     """
     
