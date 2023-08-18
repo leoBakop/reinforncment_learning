@@ -1,5 +1,5 @@
 import random
-br = 0 #stands for bad reard
+br = 0 #stands for bad reward
 mr = 1 #stands for medium reward
 gr = 2 #stands for good reward
 
