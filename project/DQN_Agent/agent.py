@@ -201,11 +201,12 @@ class Agent():
         state = list([s['obs'] for s in state])
         state = torch.Tensor(np.array(state)).to(self.device)
         qs = self.model(state) #calulating the Q(s,a) for every a
-        Q = torch.gather(qs, dim=-1, index=action.unsqueeze(-1)).squeeze(-1) #filtering the selected a
+        Q = torch.gather(qs, dim=-1, index=action.unsqueeze(-1)).squeeze(-1).to(self.device) #filtering the selected a
 
 
         #It's time for training
-        loss = self.criterion(Q,y)
+        w = torch.Tensor((weights**(1-self.b))).to(self.device)
+        loss = (self.criterion(Q, y)*w).mean()
         loss.backward()
         self.optimizer.step()
         self.soft_update()
