@@ -21,7 +21,7 @@ if __name__ == '__main__':
     set_seed(seed)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"used device is {device}")
-    horizon = 200_000
+    horizon = 500_000
     num_eval_games = 2_000 #how many hands will be played in every tournament
     evaluate_every = 10_000
     index = 0
