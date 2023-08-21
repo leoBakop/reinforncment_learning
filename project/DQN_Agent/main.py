@@ -6,7 +6,7 @@ from agent import Agent
 from tqdm import tqdm
 import numpy as np
 import matplotlib.pyplot as plt
-
+import os
 
 from rlcard.utils import (
     set_seed,
@@ -21,11 +21,11 @@ if __name__ == '__main__':
     set_seed(seed)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"used device is {device}")
-    horizon = 100_000
+    horizon = 200_000
     num_eval_games = 2_000 #how many hands will be played in every tournament
     evaluate_every = 10_000
     index = 0
-    per = True
+    per = False
     threshold = False
     
     agent = Agent(
@@ -65,6 +65,14 @@ if __name__ == '__main__':
             index+=1
 
     print(f"the buffer size at the end is {len(agent.replay_buffer)}")
+    file_path = f"./DQN_Agent/data/"
+    if not os.path.exists(file_path):
+    # If it doesn't exist, create the directory
+        os.makedirs(file_path)
+        print(f"Directory '{file_path}' has been created.")
+    else:
+        print(f"Directory '{file_path}' already exists.")
+    np.save(file_path+f"threshold_{threshold}_per_{per}.npy", rewards, allow_pickle=True)
 
 
     plt.figure(1)
@@ -74,5 +82,5 @@ if __name__ == '__main__':
     plt.plot(np.linspace(0, horizon, int(horizon/evaluate_every)),rewards, label="Average reward per episode")   
     plt.grid()
     plt.legend()
-    plt.savefig(f"./DQN_Agent/threshold_{threshold}_per_{per}")
+    plt.savefig(f"./DQN_Agent/images/threshold_{threshold}_per_{per}")
     plt.show()
