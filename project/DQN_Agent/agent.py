@@ -229,8 +229,8 @@ class Agent():
         action = torch.tensor(action).to(self.device)
         legal_actions_batch = list([ns['legal_actions'] for ns in next_state])
 
-        #calulating the max(Q(s',a'))                               #self.target_model
-        next_qs = self.no_grad_predict(state = next_state, network = self.model)
+        #calulating the max(Q(s',a'))                               
+        next_qs = self.no_grad_predict(state = next_state, network = self.target_model)
  
         legal_actions = []
         for b in range(self.batch_size):
