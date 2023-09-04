@@ -19,11 +19,11 @@ if __name__ == '__main__':
     seed = 42
     env = rlcard.make("limit-holdem", config={'seed': seed,})
     set_seed(seed)
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu") 
     print(f"used device is {device}")
-    horizon = 500_000
+    horizon = 1_500_000
     num_eval_games = 2_000 #how many hands will be played in every tournament
-    evaluate_every = 10_000
+    evaluate_every = 250_000
     index = 0
     per = False
     threshold = False
@@ -37,8 +37,8 @@ if __name__ == '__main__':
         batch_size=64,
         buffer_size=20_000 if not per else 100_000,
         gamma = .99,
-        lr = .00003,
-        decrease= int(3.5*0.4*horizon), #exploration in the 40% of the horizon. # because the agent's step is called almost 4 times ine evry game
+        lr = 10**(-5), #god lr is .00003
+        decrease= int(1.7*0.4*horizon), #exploration in the 40% of the horizon. # because the agent's step is called almost 4 times ine evry game
         goal = .1,
         update_every= 1000,
         per = per
@@ -65,14 +65,14 @@ if __name__ == '__main__':
             index+=1
 
     print(f"the buffer size at the end is {len(agent.replay_buffer)}")
-    file_path = f"./DQN_Agent/data/"
+    file_path = f"./DQN_Agent/data/dropping_lr/"
     if not os.path.exists(file_path):
     # If it doesn't exist, create the directory
         os.makedirs(file_path)
         print(f"Directory '{file_path}' has been created.")
     else:
         print(f"Directory '{file_path}' already exists.")
-    np.save(file_path+f"threshold_{threshold}_per_{per}.npy", rewards, allow_pickle=True)
+    np.save(file_path+f"threshold_{threshold}_per_{per}_0001_drop.npy", rewards, allow_pickle=True)
 
 
     plt.figure(1)

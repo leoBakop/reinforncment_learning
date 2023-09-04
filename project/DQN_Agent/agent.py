@@ -168,7 +168,7 @@ class Agent():
         if (self.eps == self.goal + self.dt):
             print("\n----------exploration was ended--------------")
             self.eps = self.goal - self.dt
-            self.optimizer.param_groups[0]['lr'] = self.lr*0.1
+            #self.optimizer.param_groups[0]['lr'] = self.lr*0.1
 
     def train_per(self,experience):
         self.model.train()
@@ -271,7 +271,6 @@ class Agent():
         
         for target_param, local_param in zip(self.target_model.parameters(), self.model.parameters()):
             target_param.data.copy_(self.TAU*local_param.data + (1.0-self.TAU)*target_param.data)
-
    
     def set_per_values(self):
         if not self.per: return
