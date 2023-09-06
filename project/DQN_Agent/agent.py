@@ -20,7 +20,6 @@ class Agent():
                     lr = .001,
                     decrease = .99,
                     goal = .02,
-                    update_every = 10,
                     per = False,
                     a = 0,
                     b = 0
@@ -54,7 +53,6 @@ class Agent():
         self.criterion = nn.MSELoss(reduction='mean')
         self.optimizer = optim.Adam(self.model.parameters(), lr=self.lr)
         self.use_raw = False #just for the env, False because the agent is not a human
-        self.update_every = update_every
         self.counter = 0
         self.TAU = .005
         #epsilon greedy part

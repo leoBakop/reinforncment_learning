@@ -36,7 +36,9 @@ def get_action(legal_moves, desired_move):
         next_move = action_hierarchy_list[(index+i+1)%len(action_hierarchy_list)]
         if next_move in legal_moves: return action_hierarchy.get(next_move, 2)
     return 2
+
 class Threshold_Agent():
+    #aka the offensive/loose agent
     def __init__(self):
         self.use_raw = False #just for the env, False because the agent is not a human
         self.pair = False
@@ -97,13 +99,43 @@ class Threshold_Agent():
         if match or self.pair: return get_action(legal_moves = legal_actions, desired_move="raise")
         return get_action(legal_moves = legal_actions, desired_move="call")
     
+
+class Tight_Threshold_Agent(Threshold_Agent):
+    
+    def play_preflop(self, state,hand):
+        """ 
+        check if agent has strong preflop hand.
+        ARGUMENTS: the ranks of the hand, state as the environment returns
+        """
+        pair = hand[0] == hand[1]
+        self.pair = pair
+        value = cards.get(hand[0], 0) + cards.get(hand[1], 0)
+        legal_actions = state["raw_legal_actions"]
+        if pair or value >= 3:
+            return get_action(legal_moves=legal_actions, desired_move = "call")
+        return get_action(legal_moves=legal_actions, desired_move = "check")
+
+
+    def play_preflop(self, state,hand):
+        """ 
+        check if agent has strong preflop hand.
+        ARGUMENTS: the ranks of the hand, state as the environment returns
+        """
+        pair = hand[0] == hand[1]
+        self.pair = pair
+        value = cards.get(hand[0], 0) + cards.get(hand[1], 0)
+        legal_actions = state["raw_legal_actions"]
+        if pair or value >= 3:
+            return get_action(legal_moves=legal_actions, desired_move = "call")
+        return get_action(legal_moves=legal_actions, desired_move = "fold")
+
 if __name__ == "__main__":
     state = {
         "raw_legal_actions": ['raise','call','check'] 
     }
     hand = ['5', 'A']
     table = ['K', '7', '8']
-    a = Threshold_Agent()
+    a = Tight_Threshold_Agent()
     a.pair = hand[0] == hand[1]
-    ret = a.play_post_flop(state = state, hand = hand, table = table)
+    ret = a.eval_step(state = state, hand = hand, table = table)
     print(ret)

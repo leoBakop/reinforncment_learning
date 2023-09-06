@@ -1,7 +1,7 @@
 import rlcard 
 import torch
 from rlcard.agents import RandomAgent
-from other_agents import Threshold_Agent
+from other_agents import Threshold_Agent, Tight_Threshold_Agent
 from agent import Agent
 from tqdm import tqdm
 import numpy as np
@@ -21,12 +21,18 @@ if __name__ == '__main__':
     set_seed(seed)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu") 
     print(f"used device is {device}")
+    #horizon = 1_500_000
     horizon = 1_500_000
     num_eval_games = 2_000 #how many hands will be played in every tournament
-    evaluate_every = 250_000
+    evaluate_every = 100_000
     index = 0
+
+    threshold = True
     per = False
-    threshold = False
+    loose = True
+
+    loose =False if not threshold else loose
+    
     
     agent = Agent(
         input_size= env.state_shape[0][0],
@@ -35,18 +41,19 @@ if __name__ == '__main__':
         num_actions=env.num_actions,
         device=device,
         batch_size=64,
-        buffer_size=20_000 if not per else 100_000,
+        buffer_size=100_000,
         gamma = .99,
-        lr = 10**(-5), #god lr is .00003
+        lr = 10**(-5), #good lr is .00003
         decrease= int(1.7*0.4*horizon), #exploration in the 40% of the horizon. # because the agent's step is called almost 4 times ine evry game
         goal = .1,
-        update_every= 1000,
         per = per
     )
 
     agents=[agent]
     for _ in range(1, env.num_players):
-        agents.append(Threshold_Agent() if threshold else RandomAgent(num_actions=env.num_actions))
+        if threshold:
+            opp = Threshold_Agent() if loose else Tight_Threshold_Agent()
+        agents.append(opp if threshold else RandomAgent(num_actions=env.num_actions))
     env.set_agents(agents)
 
     rewards = np.zeros(int(horizon/evaluate_every))
@@ -65,14 +72,14 @@ if __name__ == '__main__':
             index+=1
 
     print(f"the buffer size at the end is {len(agent.replay_buffer)}")
-    file_path = f"./DQN_Agent/data/dropping_lr/"
+    file_path = f"./DQN_Agent/data/final/"
     if not os.path.exists(file_path):
     # If it doesn't exist, create the directory
         os.makedirs(file_path)
         print(f"Directory '{file_path}' has been created.")
     else:
         print(f"Directory '{file_path}' already exists.")
-    np.save(file_path+f"threshold_{threshold}_per_{per}_0001_drop.npy", rewards, allow_pickle=True)
+    np.save(file_path+f"threshold_{threshold}_per_{per}_loose_{loose}.npy", rewards, allow_pickle=True)
 
 
     plt.figure(1)
@@ -82,5 +89,5 @@ if __name__ == '__main__':
     plt.plot(np.linspace(0, horizon, int(horizon/evaluate_every)),rewards, label="Average reward per episode")   
     plt.grid()
     plt.legend()
-    plt.savefig(f"./DQN_Agent/images/threshold_{threshold}_per_{per}")
+    plt.savefig(f"./DQN_Agent/images/threshold_{threshold}_per_{per}_loose_{loose}")
     plt.show()
