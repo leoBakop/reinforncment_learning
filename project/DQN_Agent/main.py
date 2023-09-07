@@ -28,7 +28,7 @@ if __name__ == '__main__':
     index = 0
 
     threshold = True
-    per = False
+    per = True
     loose = True
 
     loose =False if not threshold else loose
@@ -44,7 +44,7 @@ if __name__ == '__main__':
         buffer_size=100_000,
         gamma = .99,
         lr = 10**(-5), #good lr is .00003
-        decrease= int(1.7*0.4*horizon), #exploration in the 40% of the horizon. # because the agent's step is called almost 4 times ine evry game
+        decrease= int(2*1.7*0.4*horizon), #exploration in the 40% of the horizon. # because the agent's step is called almost 1.7 times ine evry game
         goal = .1,
         per = per
     )
