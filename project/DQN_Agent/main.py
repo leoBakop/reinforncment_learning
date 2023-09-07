@@ -8,6 +8,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import os
 
+from rlcard.models.limitholdem_rule_models import LimitholdemRuleAgentV1
+
 from rlcard.utils import (
     set_seed,
     tournament,
@@ -21,8 +23,7 @@ if __name__ == '__main__':
     set_seed(seed)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu") 
     print(f"used device is {device}")
-    #horizon = 1_500_000
-    horizon = 1_500_000
+    horizon = 3_000_000
     num_eval_games = 2_000 #how many hands will be played in every tournament
     evaluate_every = 100_000
     index = 0

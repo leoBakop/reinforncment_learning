@@ -1,4 +1,3 @@
-import random
 br = 0 #stands for bad reward
 mr = 1 #stands for medium reward
 gr = 2 #stands for good reward
@@ -118,16 +117,18 @@ class Tight_Threshold_Agent(Threshold_Agent):
 
     def play_preflop(self, state,hand):
         """ 
-        check if agent has strong preflop hand.
-        ARGUMENTS: the ranks of the hand, state as the environment returns
+        Decides either to raise in case of a match on the table,
+        or to just call
+        Arguments: ranked (hand and table)
         """
-        pair = hand[0] == hand[1]
-        self.pair = pair
-        value = cards.get(hand[0], 0) + cards.get(hand[1], 0)
+        match = False
         legal_actions = state["raw_legal_actions"]
-        if pair or value >= 3:
-            return get_action(legal_moves=legal_actions, desired_move = "call")
-        return get_action(legal_moves=legal_actions, desired_move = "fold")
+
+        for h in hand:
+            match = True if h in table else match
+        #in case of a match within the hand and the table or just a pair in hand
+        if match or self.pair: return get_action(legal_moves = legal_actions, desired_move="call")
+        return get_action(legal_moves = legal_actions, desired_move="check")
 
 if __name__ == "__main__":
     state = {

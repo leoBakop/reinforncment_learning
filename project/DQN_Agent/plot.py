@@ -5,11 +5,11 @@ horizon = 1_500_000
 evaluate_every = 100_000
 
 
-file_path = "DQN_Agent/data/final/threshold_False_per_True.npy"
-with_per = np.load(file_path, allow_pickle=True)
-
-file_path = "DQN_Agent/data/final/threshold_False_per_False.npy"
+file_path = "data/final/threshold_True_per_False_loose_True.npy"
 without_per = np.load(file_path, allow_pickle=True)
+
+file_path = "data/final/threshold_True_per_True_loose_True.npy"
+with_per = np.load(file_path, allow_pickle=True)
 
 
 
@@ -22,6 +22,6 @@ plt.plot(np.linspace(0, horizon, int(horizon/evaluate_every)),without_per, label
 
 plt.grid()
 plt.legend()
-plt.savefig("./DQN_Agent/images/report/against_random") # I would have to save fig in order to store it. That is working without depending on .show
+plt.savefig("./images/report/against_loose_threshold") # I would have to save fig in order to store it. That is working without depending on .show
 plt.show()
 print("end")
