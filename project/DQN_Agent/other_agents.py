@@ -115,7 +115,7 @@ class Tight_Threshold_Agent(Threshold_Agent):
         return get_action(legal_moves=legal_actions, desired_move = "check")
 
 
-    def play_preflop(self, state,hand):
+    def play_post_flop(self, state,hand):
         """ 
         Decides either to raise in case of a match on the table,
         or to just call

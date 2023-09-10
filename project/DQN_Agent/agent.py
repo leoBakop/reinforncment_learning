@@ -164,7 +164,7 @@ class Agent():
             self.eps = self.epsilon_values[self.index]
 
         if (self.eps == self.goal + self.dt):
-            print("\n----------exploration was ended--------------")
+            print("\n----------exploration ended--------------")
             self.eps = self.goal - self.dt
             #self.optimizer.param_groups[0]['lr'] = self.lr*0.1
 
@@ -275,3 +275,9 @@ class Agent():
         self.replay_buffer.set_alpha(1-self.eps)
         self.replay_buffer.set_beta(1-self.eps)
     
+
+    def load_model(self, weights):
+        self.model.load_state_dict(weights)
+        self.target_model.load_state_dict(weights)
+        self.model.eval()
+        self.target_model.eval()

@@ -29,9 +29,11 @@ if __name__ == '__main__':
     index = 0
 
     threshold = True
-    per = True
-    loose = True
-
+    per = False
+    loose = False
+    best_threshold = False
+    
+    threshold = True if best_threshold else threshold
     loose =False if not threshold else loose
     
     
@@ -52,14 +54,17 @@ if __name__ == '__main__':
 
     agents=[agent]
     for _ in range(1, env.num_players):
-        if threshold:
+        if threshold:   
             opp = Threshold_Agent() if loose else Tight_Threshold_Agent()
-        agents.append(opp if threshold else RandomAgent(num_actions=env.num_actions))
+            opp = LimitholdemRuleAgentV1() if best_threshold else opp
+        else:
+            opp = RandomAgent(num_actions=env.num_actions)
+        agents.append(opp)
+    print(f"the opponent of the agent is {type(opp)}")
     env.set_agents(agents)
 
     rewards = np.zeros(int(horizon/evaluate_every))
     for episode in tqdm(range(horizon), desc="Processing items", unit="item"):
-
 
         # Generate data from the environment
         trajectories, payoffs = env.run(is_training=True)
@@ -73,15 +78,15 @@ if __name__ == '__main__':
             index+=1
 
     print(f"the buffer size at the end is {len(agent.replay_buffer)}")
-    file_path = f"./DQN_Agent/data/final/"
+    file_path = f"./data/final/"
     if not os.path.exists(file_path):
     # If it doesn't exist, create the directory
         os.makedirs(file_path)
         print(f"Directory '{file_path}' has been created.")
     else:
         print(f"Directory '{file_path}' already exists.")
-    np.save(file_path+f"threshold_{threshold}_per_{per}_loose_{loose}.npy", rewards, allow_pickle=True)
-
+    torch.save(agent.model.state_dict(), file_path+f'models/threshold_{threshold}_per_{per}_loose_{loose}_best_{best_threshold}_model.pth')
+    np.save(file_path+f"threshold_{threshold}_per_{per}_loose_{loose}_best_{best_threshold}.npy", rewards, allow_pickle=True)
 
     plt.figure(1)
     plt.title(f" Agent's Reward ") 
@@ -90,5 +95,5 @@ if __name__ == '__main__':
     plt.plot(np.linspace(0, horizon, int(horizon/evaluate_every)),rewards, label="Average reward per episode")   
     plt.grid()
     plt.legend()
-    plt.savefig(f"./DQN_Agent/images/threshold_{threshold}_per_{per}_loose_{loose}")
+    plt.savefig(f"./images/threshold_{threshold}_per_{per}_loose_{loose}_best_{best_threshold}")
     plt.show()
