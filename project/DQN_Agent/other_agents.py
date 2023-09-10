@@ -115,7 +115,7 @@ class Tight_Threshold_Agent(Threshold_Agent):
         return get_action(legal_moves=legal_actions, desired_move = "check")
 
 
-    def play_post_flop(self, state,hand):
+    def play_post_flop(self, state, hand, table):
         """ 
         Decides either to raise in case of a match on the table,
         or to just call
@@ -130,13 +130,4 @@ class Tight_Threshold_Agent(Threshold_Agent):
         if match or self.pair: return get_action(legal_moves = legal_actions, desired_move="call")
         return get_action(legal_moves = legal_actions, desired_move="check")
 
-if __name__ == "__main__":
-    state = {
-        "raw_legal_actions": ['raise','call','check'] 
-    }
-    hand = ['5', 'A']
-    table = ['K', '7', '8']
-    a = Tight_Threshold_Agent()
-    a.pair = hand[0] == hand[1]
-    ret = a.eval_step(state = state, hand = hand, table = table)
-    print(ret)
+
